@@ -10,41 +10,25 @@
     <style>
         :root { --bg: #0b101b; --primary: #5865f2; --norms: #a855f7; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
-
-        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(11, 16, 27, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
         .sidebar.open { right: 0; }
         .sidebar-link { display: block; padding: 15px; color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-
-        /* VISTAS */
         .view { display: none; flex-direction: column; align-items: center; padding: 100px 20px 40px; min-height: 100vh; box-sizing: border-box; }
         .view.active { display: flex; animation: fadeIn 0.3s ease; }
-
-        /* DISEÑO DE ITEMS */
-        .norm-item { 
-            margin: 10px; padding: 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); 
-            display: inline-block; width: 100%; box-sizing: border-box;
-        }
+        .norm-item { margin: 10px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: inline-block; width: 100%; box-sizing: border-box; }
         .norm-item h3 { margin: 0 0 8px 0; font-size: 16px; color: var(--primary); }
         .norm-item p { margin: 0; font-size: 14px; opacity: 0.8; white-space: pre-line; line-height: 1.4; }
         .norm-item img { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 300px; object-fit: cover; }
         .tag-sub { font-size: 10px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
-
-        /* ACORDEONES */
         .accordion { width: 100%; max-width: 800px; margin-bottom: 10px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-left: 4px solid var(--primary); }
         .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 5px; }
         .accordion.open .acc-content { max-height: 10000px; padding: 10px; }
-
-        /* ADMIN */
         .admin-box { width: 100%; max-width: 650px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; font-family: inherit; }
         .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; transition: 0.2s; }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
         .btn-purple { background: linear-gradient(to right, #7c3aed, #2563eb); }
-        
         .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -67,10 +51,8 @@
     <section id="view-home" class="view active">
         <img id="display-logo" src="" style="width:120px; height:120px; border-radius:30px; margin-bottom:15px; display:none;">
         <h1 id="display-title" style="font-size: 2.5rem; margin-bottom: 5px;">España District</h1>
-        <p id="display-desc" style="opacity: 0.7;">Conectando con el servidor...</p>
-        
-        <input type="text" style="width:90%; max-width:400px; padding:15px; border-radius:12px; background:var(--card); border:1px solid var(--primary); color:white; margin:25px 0; text-align: center;" placeholder="🔍 Buscar normativa o información..." onkeyup="globalSearch(this.value)">
-        
+        <p id="display-desc" style="opacity: 0.7;">Cargando portal...</p>
+        <input type="text" style="width:90%; max-width:400px; padding:15px; border-radius:12px; background:var(--card); border:1px solid var(--primary); color:white; margin:25px 0; text-align: center;" placeholder="🔍 Buscar información..." onkeyup="globalSearch(this.value)">
         <div style="display: flex; gap: 10px;">
             <button class="btn btn-purple" onclick="goTo('norms')">Normativas</button>
             <button class="btn btn-purple" style="background:var(--gov)" onclick="goTo('gov')">Gobierno</button>
@@ -81,9 +63,8 @@
     <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%; max-width: 800px;"></div></section>
 
     <section id="view-admin" class="view">
-        <div id="staff-info-bar" style="background:var(--primary); padding:10px 25px; border-radius:30px; font-size:12px; font-weight:800; margin-bottom:20px; box-shadow: 0 4px 15px rgba(88,101,242,0.3);"></div>
-        
-        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; max-width:750px; padding: 10px;">
+        <div id="staff-info-bar" style="background:var(--primary); padding:10px 25px; border-radius:30px; font-size:12px; font-weight:800; margin-bottom:20px;"></div>
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; max-width:750px;">
             <button class="btn btn-purple" onclick="tab('t-content')">📝 Contenido</button>
             <button class="btn btn-purple" style="background:#444" onclick="tab('t-design')">🎨 Diseño</button>
             <button class="btn btn-purple" style="background:#222" onclick="protectedTab('t-security')">🔒 Seguridad</button>
@@ -91,64 +72,57 @@
         </div>
 
         <div id="t-content" class="admin-box">
-            <h3 style="color:var(--primary)">Gestionar Secciones y Roles</h3>
-            <select id="type-selector">
-                <option value="norms">Normativas</option>
-                <option value="gov">Gobierno</option>
-            </select>
-            <input type="text" id="new-cat-name" placeholder="Nombre de la Sección (Ej: Código Penal)">
+            <h3 style="color:var(--primary)">Secciones</h3>
+            <select id="type-selector" onchange="render()"><option value="norms">Normativas</option><option value="gov">Gobierno</option></select>
+            <input type="text" id="new-cat-name" placeholder="Nombre (Ej: Código Penal)">
             <button class="btn btn-purple" style="width:100%" onclick="addCategory()">Crear Sección</button>
-            
             <hr style="opacity:0.1; margin:25px 0">
-            
             <h3 style="color:var(--gov)">Publicar Item</h3>
-            <select id="dest-cat" onchange="updateSubList()"></select>
-            <input type="text" id="new-sub-tag" placeholder="Sub-Sección/Rol (Ej: Robo, General, LSPD)">
+            <select id="dest-cat"></select>
+            <input type="text" id="new-sub-tag" placeholder="Etiqueta/Rol (Ej: General)">
             <input type="text" id="item-title" placeholder="Título">
-            <textarea id="item-desc" rows="4" placeholder="Escribe aquí el contenido..."></textarea>
+            <textarea id="item-desc" rows="4" placeholder="Contenido..."></textarea>
             <input type="text" id="item-img" placeholder="Link de imagen (Opcional)">
-            <button class="btn btn-purple" style="width:100%; background:var(--gov)" onclick="saveItem()">Publicar Firmado</button>
-            
+            <button class="btn btn-purple" style="width:100%; background:var(--gov)" onclick="saveItem()">Publicar</button>
             <div id="admin-manage-list" style="margin-top:30px"></div>
         </div>
 
         <div id="t-design" class="admin-box" style="display:none">
-            <h3>Apariencia del Portal</h3>
-            <label>Título del Proyecto:</label><input type="text" id="cfg-t">
-            <label>Descripción Inicio:</label><input type="text" id="cfg-d">
-            <label>URL del Logo:</label><input type="text" id="cfg-l">
-            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Actualizar Diseño</button>
+            <h3>Apariencia</h3>
+            <input type="text" id="cfg-t" placeholder="Nombre del Servidor">
+            <input type="text" id="cfg-d" placeholder="Descripción">
+            <input type="text" id="cfg-l" placeholder="Link del Logo">
+            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Guardar</button>
         </div>
 
         <div id="t-security" class="admin-box" style="display:none">
-            <h3>Conexiones y Llaves</h3>
-            <label>Webhook de Logs (Discord):</label><input type="text" id="cfg-h">
-            <label>Nueva Clave Admin:</label><input type="password" id="cfg-p">
-            <button class="btn btn-purple" style="width:100%" onclick="saveSecurity()">Guardar Cambios</button>
+            <h3>Seguridad</h3>
+            <input type="text" id="cfg-h" placeholder="Webhook Discord">
+            <input type="password" id="cfg-p" placeholder="Nueva Clave Admin">
+            <button class="btn btn-purple" style="width:100%" onclick="saveSecurity()">Actualizar</button>
         </div>
     </section>
 
     <div id="login" class="overlay">
         <div class="admin-box" style="max-width:340px; text-align:center;">
-            <h2 style="margin-bottom:10px">Acceso Staff</h2>
+            <h2>Acceso Staff</h2>
             <input type="text" id="st-name" placeholder="Tu Nombre">
             <input type="text" id="st-range" placeholder="Tu Rango">
-            <input type="password" id="st-pass" placeholder="Contraseña Maestra">
-            <button class="btn btn-purple" style="width:100%; margin-top:15px;" onclick="checkLogin()">Entrar al Panel</button>
+            <input type="password" id="st-pass" placeholder="Contraseña">
+            <button class="btn btn-purple" style="width:100%" onclick="checkLogin()">Entrar</button>
             <p onclick="closeLogin()" style="cursor:pointer; opacity:0.5; margin-top:15px;">Volver</p>
         </div>
     </div>
 
     <div id="second-login" class="overlay">
         <div class="admin-box" style="max-width:300px; text-align:center;">
-            <h3>Verificación Requerida</h3>
-            <input type="password" id="pass-2" placeholder="Repite la clave">
-            <button class="btn btn-purple" style="width:100%" onclick="verifyProtected()">Desbloquear</button>
+            <h3>Verificación</h3>
+            <input type="password" id="pass-2" placeholder="Clave">
+            <button class="btn btn-purple" style="width:100%" onclick="verifyProtected()">Entrar</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN DE TU FIREBASE (Sacada de tus fotos)
         const firebaseConfig = {
             apiKey: "AIzaSyALZQFctcGybVPRnIVtGzMqZ0lFBUkZqC4",
             authDomain: "wheeboks-2896f.firebaseapp.com",
@@ -161,65 +135,68 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let appData = { config: {}, norms: {}, gov: {}, posts: {} };
+        let appData = { config: {pass: "pampiano17", title: "España District", desc: "Portal"}, norms: {}, gov: {}, posts: {} };
         let staff = { name: "", range: "" };
         let pendingTab = "";
 
-        // ESCUCHA TIEMPO REAL
-        db.ref('wheeboks_pro').on('value', snap => {
-            appData = snap.val() || { config: {title: "España District", desc: "Portal", pass: "pampiano17"}, norms: {}, gov: {}, posts: {} };
+        db.ref('wheeboks_v5').on('value', snap => {
+            const data = snap.val();
+            if(data) { appData = data; if(!appData.config.pass) appData.config.pass = "pampiano17"; }
             render();
         });
-
-        async function sendLog(title, desc) {
-            if(!appData.config.hook) return;
-            fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
-                embeds: [{ title, description: desc, color: 5793266, fields: [{name: "Staff", value: staff.name, inline: true}, {name: "Rango", value: staff.range, inline: true}], timestamp: new Date() }]
-            })});
-        }
-
-        // NAVEGACIÓN
-        function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
-        function goTo(id) { 
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); 
-            document.getElementById('view-' + id).classList.add('active'); 
-            if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); 
-        }
-        function tab(id) { 
-            document.querySelectorAll('.admin-box').forEach(b => b.style.display='none'); 
-            document.getElementById(id).style.display='block'; 
-        }
-
-        function openLogin() { toggleSide(); document.getElementById('login').style.display='flex'; }
-        function closeLogin() { document.getElementById('login').style.display='none'; }
 
         function checkLogin() {
             const p = document.getElementById('st-pass').value;
             staff.name = document.getElementById('st-name').value;
             staff.range = document.getElementById('st-range').value;
-            if(p === appData.config.pass && staff.name && staff.range) {
-                document.getElementById('staff-info-bar').innerText = `MODO ADMINISTRADOR: ${staff.name.toUpperCase()} (${staff.range.toUpperCase()})`;
+            const validPass = (appData.config && appData.config.pass) ? appData.config.pass : "pampiano17";
+            if(p === validPass && staff.name && staff.range) {
+                document.getElementById('staff-info-bar').innerText = `STAFF: ${staff.name} [${staff.range}]`;
                 closeLogin(); goTo('admin');
-                sendLog("🔑 Sesión Iniciada", "Acceso concedido al panel administrativo.");
-            } else { alert("Clave o datos incorrectos"); }
+            } else { alert("Datos o clave incorrectos"); }
         }
 
-        function protectedTab(id) { pendingTab = id; document.getElementById('second-login').style.display='flex'; }
-        function verifyProtected() {
-            if(document.getElementById('pass-2').value === appData.config.pass) {
-                document.getElementById('second-login').style.display='none'; tab(pendingTab);
-            } else { alert("Error de clave"); }
+        function render() {
+            const c = appData.config || {title: "España District", desc: "Portal"};
+            document.getElementById('display-title').innerText = c.title;
+            document.getElementById('cfg-nav-title').innerText = c.title.toUpperCase();
+            document.getElementById('display-desc').innerText = c.desc;
+            if(c.logo) { document.getElementById('display-logo').src = c.logo; document.getElementById('display-logo').style.display='block'; }
+
+            ['norms', 'gov'].forEach(type => {
+                const container = document.getElementById('render-'+type);
+                container.innerHTML = "";
+                const cats = appData[type] || {};
+                const sel = document.getElementById('dest-cat');
+                if(document.getElementById('type-selector').value === type) sel.innerHTML = "";
+
+                for(let id in cats) {
+                    if(document.getElementById('type-selector').value === type) sel.innerHTML += `<option value="${id}">${cats[id]}</option>`;
+                    let items = "";
+                    const posts = appData.posts || {};
+                    for(let pid in posts) {
+                        const p = posts[pid];
+                        if(p.catId === id && p.type === type) {
+                            items += `<div class="norm-item"><span class="tag-sub">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p>${p.img ? `<img src="${p.img}">`:''}</div>`;
+                        }
+                    }
+                    container.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cats[id]} <span>▼</span></div><div class="acc-content">${items || '<p style="padding:15px">Vacío</p>'}</div></div>`;
+                }
+            });
+
+            const manage = document.getElementById('admin-manage-list');
+            manage.innerHTML = "<h4>Gestión Actual</h4>";
+            const currentType = document.getElementById('type-selector').value;
+            const currentCats = appData[currentType] || {};
+            for(let id in currentCats) {
+                manage.innerHTML += `<div style="padding:10px; background:#0b101b; margin-top:5px; border-radius:8px;">${currentCats[id]} <span onclick="deleteCat('${currentType}','${id}')" style="color:red; float:right; cursor:pointer">Eliminar</span></div>`;
+            }
         }
 
-        // FUNCIONES ADMIN
         function addCategory() {
             const type = document.getElementById('type-selector').value;
             const name = document.getElementById('new-cat-name').value;
-            if(name) {
-                db.ref(`wheeboks_pro/${type}`).push(name);
-                document.getElementById('new-cat-name').value = "";
-                sendLog("📁 Nueva Sección", `Se creó la sección **${name}** en ${type}`);
-            }
+            if(name) db.ref(`wheeboks_v5/${type}`).push(name);
         }
 
         function saveItem() {
@@ -227,21 +204,19 @@
             const type = document.getElementById('type-selector').value;
             const title = document.getElementById('item-title').value;
             const desc = document.getElementById('item-desc').value;
-            const sub = document.getElementById('new-sub-tag').value || "General";
-            const img = document.getElementById('item-img').value;
-
-            if(title && desc) {
-                db.ref(`wheeboks_pro/posts`).push({
-                    catId, type, title, desc, sub, img,
-                    staff: staff.name, range: staff.range, date: new Date().toLocaleDateString()
+            if(catId && title) {
+                db.ref('wheeboks_v5/posts').push({
+                    catId, type, title, desc,
+                    sub: document.getElementById('new-sub-tag').value || "General",
+                    img: document.getElementById('item-img').value,
+                    staff: staff.name, date: new Date().toLocaleDateString()
                 });
-                alert("¡Publicado!");
-                sendLog("📝 Nuevo Post", `Se publicó: **${title}** en la categoría seleccionada.`);
+                alert("Publicado");
             }
         }
 
         function saveDesign() {
-            db.ref('wheeboks_pro/config').update({
+            db.ref('wheeboks_v5/config').update({
                 title: document.getElementById('cfg-t').value,
                 desc: document.getElementById('cfg-d').value,
                 logo: document.getElementById('cfg-l').value
@@ -249,79 +224,20 @@
         }
 
         function saveSecurity() {
-            db.ref('wheeboks_pro/config').update({
+            db.ref('wheeboks_v5/config').update({
                 hook: document.getElementById('cfg-h').value,
                 pass: document.getElementById('cfg-p').value
             });
-            alert("Seguridad actualizada");
         }
 
-        function deletePost(id) { if(confirm("¿Eliminar publicación?")) db.ref(`wheeboks_pro/posts/${id}`).remove(); }
-        function deleteCat(type, id) { if(confirm("¿Eliminar sección y sus contenidos?")) db.ref(`wheeboks_pro/${type}/${id}`).remove(); }
-
-        // RENDERIZADO
-        function render() {
-            const c = appData.config;
-            document.getElementById('display-title').innerText = c.title;
-            document.getElementById('cfg-nav-title').innerText = c.title.toUpperCase();
-            document.getElementById('display-desc').innerText = c.desc;
-            document.getElementById('tab-title').innerText = c.title + " | Portal";
-            if(c.logo) { document.getElementById('display-logo').src = c.logo; document.getElementById('display-logo').style.display='block'; }
-
-            // Limpiar contenedores
-            ['norms', 'gov'].forEach(t => document.getElementById('render-'+t).innerHTML = "");
-            const sel = document.getElementById('dest-cat'); sel.innerHTML = "";
-            const manage = document.getElementById('admin-manage-list'); manage.innerHTML = "<h4>Gestión de Datos</h4>";
-
-            // Renderizar Categorías
-            ['norms', 'gov'].forEach(type => {
-                const cats = appData[type] || {};
-                for(let id in cats) {
-                    if(document.getElementById('type-selector').value === type) sel.innerHTML += `<option value="${id}">${cats[id]}</option>`;
-                    
-                    // Crear Acordeón
-                    let itemsHtml = "";
-                    const posts = appData.posts || {};
-                    for(let pid in posts) {
-                        const p = posts[pid];
-                        if(p.catId === id) {
-                            itemsHtml += `
-                                <div class="norm-item">
-                                    <span class="tag-sub">${p.sub}</span>
-                                    <h3>${p.title}</h3>
-                                    <p>${p.desc}</p>
-                                    ${p.img ? `<img src="${p.img}">` : ''}
-                                    <div style="font-size:9px; opacity:0.4; margin-top:8px;">Por: ${p.staff} | ${p.date}</div>
-                                </div>`;
-                        }
-                    }
-                    
-                    const acc = `
-                        <div class="accordion">
-                            <div class="acc-header" onclick="this.parentElement.classList.toggle('open')">
-                                ${cats[id]} <span>▼</span>
-                            </div>
-                            <div class="acc-content">${itemsHtml || '<p style="padding:20px; opacity:0.5">Sin contenido aún...</p>'}</div>
-                        </div>`;
-                    document.getElementById('render-'+type).innerHTML += acc;
-
-                    // Lista Admin
-                    manage.innerHTML += `<div style="background:#0b101b; padding:10px; margin-top:5px; border-radius:10px; font-size:12px;">
-                        <b>[${type.toUpperCase()}] ${cats[id]}</b> 
-                        <span onclick="deleteCat('${type}','${id}')" style="color:red; float:right; cursor:pointer">Eliminar Sección</span>
-                    </div>`;
-                }
-            });
-
-            // Lista Posts Admin
-            const posts = appData.posts || {};
-            for(let id in posts) {
-                manage.innerHTML += `<div style="font-size:11px; padding:5px 10px; opacity:0.7; border-bottom:1px solid #333;">
-                    ${posts[id].title} <span onclick="deletePost('${id}')" style="color:red; float:right; cursor:pointer">Borrar</span>
-                </div>`;
-            }
-        }
-
+        function deleteCat(t, id) { if(confirm("¿Borrar sección?")) db.ref(`wheeboks_v5/${t}/${id}`).remove(); }
+        function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
+        function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); }
+        function tab(id) { document.querySelectorAll('.admin-box').forEach(b => b.style.display='none'); document.getElementById(id).style.display='block'; }
+        function openLogin() { toggleSide(); document.getElementById('login').style.display='flex'; }
+        function closeLogin() { document.getElementById('login').style.display='none'; }
+        function protectedTab(id) { pendingTab = id; document.getElementById('second-login').style.display='flex'; }
+        function verifyProtected() { if(document.getElementById('pass-2').value === appData.config.pass) { document.getElementById('second-login').style.display='none'; tab(pendingTab); } else { alert("Error"); } }
         function globalSearch(q) {
             if(q.length < 2) return;
             goTo('norms');
@@ -335,3 +251,4 @@
     </script>
 </body>
 </html>
+ 
