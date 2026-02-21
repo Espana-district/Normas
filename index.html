@@ -31,6 +31,11 @@
         .btn-purple { background: linear-gradient(to right, #7c3aed, #2563eb); }
         .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Estilos específicos para Admin */
+        .admin-nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .tab-link { padding: 8px 15px; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: bold; opacity: 0.6; }
+        .tab-link.active { background: var(--primary); opacity: 1; color: white; }
     </style>
 </head>
 <body>
@@ -64,27 +69,45 @@
 
     <section id="view-admin" class="view">
         <div id="staff-info-bar" style="background:var(--primary); padding:10px 25px; border-radius:30px; font-size:12px; font-weight:800; margin-bottom:20px;"></div>
+        
         <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; max-width:750px;">
-            <button class="btn btn-purple" onclick="tab('t-content')">📝 Contenido</button>
+            <button class="btn btn-purple" onclick="tab('t-norms-admin')">📜 Normas</button>
+            <button class="btn btn-purple" style="background:var(--gov)" onclick="tab('t-gov-admin')">🏛️ Gobierno</button>
             <button class="btn btn-purple" style="background:#444" onclick="tab('t-design')">🎨 Diseño</button>
             <button class="btn btn-purple" style="background:#222" onclick="protectedTab('t-security')">🔒 Seguridad</button>
             <button class="btn" style="background:#ff4444" onclick="location.reload()">🚪 Salir</button>
         </div>
 
-        <div id="t-content" class="admin-box">
-            <h3 style="color:var(--primary)">Secciones</h3>
-            <select id="type-selector" onchange="render()"><option value="norms">Normativas</option><option value="gov">Gobierno</option></select>
-            <input type="text" id="new-cat-name" placeholder="Nombre (Ej: Código Penal)">
-            <button class="btn btn-purple" style="width:100%" onclick="addCategory()">Crear Sección</button>
-            <hr style="opacity:0.1; margin:25px 0">
-            <h3 style="color:var(--gov)">Publicar Item</h3>
-            <select id="dest-cat"></select>
-            <input type="text" id="new-sub-tag" placeholder="Etiqueta/Rol (Ej: General)">
-            <input type="text" id="item-title" placeholder="Título">
-            <textarea id="item-desc" rows="4" placeholder="Contenido..."></textarea>
-            <input type="text" id="item-img" placeholder="Link de imagen (Opcional)">
-            <button class="btn btn-purple" style="width:100%; background:var(--gov)" onclick="saveItem()">Publicar</button>
-            <div id="admin-manage-list" style="margin-top:30px"></div>
+        <div id="t-norms-admin" class="admin-box">
+            <h3 style="color:var(--primary)">Gestión de Normativas</h3>
+            <label>Nueva Sección de Normas:</label>
+            <input type="text" id="new-norm-cat" placeholder="Ej: Código Penal">
+            <button class="btn btn-purple" style="width:100%" onclick="addCategory('norms')">Crear Sección</button>
+            <hr style="opacity:0.1; margin:20px 0">
+            <h4>Publicar Regla</h4>
+            <select id="dest-norm-cat"></select>
+            <input type="text" id="norm-sub-tag" placeholder="Etiqueta (Ej: General)">
+            <input type="text" id="norm-title" placeholder="Título de la Regla">
+            <textarea id="norm-desc" rows="4" placeholder="Contenido de la norma..."></textarea>
+            <input type="text" id="norm-img" placeholder="Link de imagen (Opcional)">
+            <button class="btn btn-purple" style="width:100%" onclick="saveItem('norms')">Publicar en Normas</button>
+            <div id="manage-norms-list" style="margin-top:20px"></div>
+        </div>
+
+        <div id="t-gov-admin" class="admin-box" style="display:none">
+            <h3 style="color:var(--gov)">Gestión de Gobierno</h3>
+            <label>Nueva Sección de Gobierno:</label>
+            <input type="text" id="new-gov-cat" placeholder="Ej: LSPD">
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addCategory('gov')">Crear Sección</button>
+            <hr style="opacity:0.1; margin:20px 0">
+            <h4>Publicar Información</h4>
+            <select id="dest-gov-cat"></select>
+            <input type="text" id="gov-sub-tag" placeholder="Etiqueta (Ej: Rangos)">
+            <input type="text" id="gov-title" placeholder="Título">
+            <textarea id="gov-desc" rows="4" placeholder="Contenido..."></textarea>
+            <input type="text" id="gov-img" placeholder="Link de imagen (Opcional)">
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="saveItem('gov')">Publicar en Gobierno</button>
+            <div id="manage-gov-list" style="margin-top:20px"></div>
         </div>
 
         <div id="t-design" class="admin-box" style="display:none">
@@ -92,14 +115,14 @@
             <input type="text" id="cfg-t" placeholder="Nombre del Servidor">
             <input type="text" id="cfg-d" placeholder="Descripción">
             <input type="text" id="cfg-l" placeholder="Link del Logo">
-            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Guardar</button>
+            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Guardar Cambios</button>
         </div>
 
         <div id="t-security" class="admin-box" style="display:none">
             <h3>Seguridad</h3>
             <input type="text" id="cfg-h" placeholder="Webhook Discord">
             <input type="password" id="cfg-p" placeholder="Nueva Clave Admin">
-            <button class="btn btn-purple" style="width:100%" onclick="saveSecurity()">Actualizar</button>
+            <button class="btn btn-purple" style="width:100%" onclick="saveSecurity()">Actualizar Seguridad</button>
         </div>
     </section>
 
@@ -135,11 +158,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let appData = { config: {pass: "pampiano17", title: "España District", desc: "Portal"}, norms: {}, gov: {}, posts: {} };
+        let appData = { config: {pass: "pampiano17"}, norms: {}, gov: {}, posts: {} };
         let staff = { name: "", range: "" };
         let pendingTab = "";
 
-        db.ref('wheeboks_v5').on('value', snap => {
+        // ESCUCHA FIREBASE
+        db.ref('wheeboks_v6').on('value', snap => {
             const data = snap.val();
             if(data) { appData = data; if(!appData.config.pass) appData.config.pass = "pampiano17"; }
             render();
@@ -151,9 +175,9 @@
             staff.range = document.getElementById('st-range').value;
             const validPass = (appData.config && appData.config.pass) ? appData.config.pass : "pampiano17";
             if(p === validPass && staff.name && staff.range) {
-                document.getElementById('staff-info-bar').innerText = `STAFF: ${staff.name} [${staff.range}]`;
+                document.getElementById('staff-info-bar').innerText = `STAFF: ${staff.name.toUpperCase()} [${staff.range.toUpperCase()}]`;
                 closeLogin(); goTo('admin');
-            } else { alert("Datos o clave incorrectos"); }
+            } else { alert("Datos incorrectos"); }
         }
 
         function render() {
@@ -163,74 +187,69 @@
             document.getElementById('display-desc').innerText = c.desc;
             if(c.logo) { document.getElementById('display-logo').src = c.logo; document.getElementById('display-logo').style.display='block'; }
 
+            // RENDERIZAR VISTAS PÚBLICAS Y SELECTORES ADMIN
             ['norms', 'gov'].forEach(type => {
                 const container = document.getElementById('render-'+type);
+                const selectAdmin = document.getElementById('dest-'+type+'-cat');
+                const manageList = document.getElementById('manage-'+type+'-list');
+                
                 container.innerHTML = "";
-                const cats = appData[type] || {};
-                const sel = document.getElementById('dest-cat');
-                if(document.getElementById('type-selector').value === type) sel.innerHTML = "";
+                selectAdmin.innerHTML = "";
+                manageList.innerHTML = "<h4>Secciones Creadas:</h4>";
 
+                const cats = appData[type] || {};
                 for(let id in cats) {
-                    if(document.getElementById('type-selector').value === type) sel.innerHTML += `<option value="${id}">${cats[id]}</option>`;
-                    let items = "";
+                    selectAdmin.innerHTML += `<option value="${id}">${cats[id]}</option>`;
+                    manageList.innerHTML += `<div style="padding:8px; background:#0b101b; margin-bottom:5px; border-radius:5px; font-size:12px;">${cats[id]} <span onclick="deleteCat('${type}','${id}')" style="color:red; float:right; cursor:pointer">Eliminar</span></div>`;
+
+                    let itemsHtml = "";
                     const posts = appData.posts || {};
                     for(let pid in posts) {
                         const p = posts[pid];
                         if(p.catId === id && p.type === type) {
-                            items += `<div class="norm-item"><span class="tag-sub">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p>${p.img ? `<img src="${p.img}">`:''}</div>`;
+                            itemsHtml += `<div class="norm-item"><span class="tag-sub">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p>${p.img ? `<img src="${p.img}">`:''}<div style="font-size:9px; opacity:0.3; margin-top:10px;">Por: ${p.staff}</div></div>`;
                         }
                     }
-                    container.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cats[id]} <span>▼</span></div><div class="acc-content">${items || '<p style="padding:15px">Vacío</p>'}</div></div>`;
+                    container.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cats[id]} <span>▼</span></div><div class="acc-content">${itemsHtml || '<p style="padding:15px">No hay contenido</p>'}</div></div>`;
                 }
             });
+        }
 
-            const manage = document.getElementById('admin-manage-list');
-            manage.innerHTML = "<h4>Gestión Actual</h4>";
-            const currentType = document.getElementById('type-selector').value;
-            const currentCats = appData[currentType] || {};
-            for(let id in currentCats) {
-                manage.innerHTML += `<div style="padding:10px; background:#0b101b; margin-top:5px; border-radius:8px;">${currentCats[id]} <span onclick="deleteCat('${currentType}','${id}')" style="color:red; float:right; cursor:pointer">Eliminar</span></div>`;
+        // FUNCIONES DE ENVÍO CORREGIDAS
+        function addCategory(type) {
+            const inputId = type === 'norms' ? 'new-norm-cat' : 'new-gov-cat';
+            const name = document.getElementById(inputId).value;
+            if(name) {
+                db.ref(`wheeboks_v6/${type}`).push(name);
+                document.getElementById(inputId).value = "";
             }
         }
 
-        function addCategory() {
-            const type = document.getElementById('type-selector').value;
-            const name = document.getElementById('new-cat-name').value;
-            if(name) db.ref(`wheeboks_v5/${type}`).push(name);
-        }
+        function saveItem(type) {
+            const catId = document.getElementById('dest-'+type+'-cat').value;
+            const sub = document.getElementById(type === 'norms' ? 'norm-sub-tag' : 'gov-sub-tag').value;
+            const title = document.getElementById(type === 'norms' ? 'norm-title' : 'gov-title').value;
+            const desc = document.getElementById(type === 'norms' ? 'norm-desc' : 'gov-desc').value;
+            const img = document.getElementById(type === 'norms' ? 'norm-img' : 'gov-img').value;
 
-        function saveItem() {
-            const catId = document.getElementById('dest-cat').value;
-            const type = document.getElementById('type-selector').value;
-            const title = document.getElementById('item-title').value;
-            const desc = document.getElementById('item-desc').value;
-            if(catId && title) {
-                db.ref('wheeboks_v5/posts').push({
-                    catId, type, title, desc,
-                    sub: document.getElementById('new-sub-tag').value || "General",
-                    img: document.getElementById('item-img').value,
+            if(!catId) return alert("Crea primero una sección.");
+            if(title && desc) {
+                db.ref('wheeboks_v6/posts').push({
+                    type, catId, sub: sub || "General", title, desc, img,
                     staff: staff.name, date: new Date().toLocaleDateString()
                 });
-                alert("Publicado");
-            }
+                alert("¡Publicado con éxito!");
+                // Limpiar campos
+                document.getElementById(type === 'norms' ? 'norm-title' : 'gov-title').value = "";
+                document.getElementById(type === 'norms' ? 'norm-desc' : 'gov-desc').value = "";
+            } else { alert("Rellena título y contenido."); }
         }
 
-        function saveDesign() {
-            db.ref('wheeboks_v5/config').update({
-                title: document.getElementById('cfg-t').value,
-                desc: document.getElementById('cfg-d').value,
-                logo: document.getElementById('cfg-l').value
-            });
-        }
+        function deleteCat(type, id) { if(confirm("¿Borrar sección y sus publicaciones?")) db.ref(`wheeboks_v6/${type}/${id}`).remove(); }
+        function saveDesign() { db.ref('wheeboks_v6/config').update({ title: document.getElementById('cfg-t').value, desc: document.getElementById('cfg-d').value, logo: document.getElementById('cfg-l').value }); alert("Diseño guardado"); }
+        function saveSecurity() { db.ref('wheeboks_v6/config').update({ hook: document.getElementById('cfg-h').value, pass: document.getElementById('cfg-p').value }); alert("Seguridad guardada"); }
 
-        function saveSecurity() {
-            db.ref('wheeboks_v5/config').update({
-                hook: document.getElementById('cfg-h').value,
-                pass: document.getElementById('cfg-p').value
-            });
-        }
-
-        function deleteCat(t, id) { if(confirm("¿Borrar sección?")) db.ref(`wheeboks_v5/${t}/${id}`).remove(); }
+        // UTILIDADES
         function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
         function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); }
         function tab(id) { document.querySelectorAll('.admin-box').forEach(b => b.style.display='none'); document.getElementById(id).style.display='block'; }
@@ -251,4 +270,3 @@
     </script>
 </body>
 </html>
- 
