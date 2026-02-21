@@ -3,111 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="tab-title">Wheeboks | España District</title>
+    <title id="tab-title">España District | Portal</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --primary: #00ff88; --card: #111111; --text: #ffffff; }
+        :root { --bg: #0b101b; --primary: #5865f2; --norms: #a855f7; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid #222; }
-        .nav-brand { font-weight: 800; font-size: 1.4rem; color: var(--primary); text-transform: uppercase; }
-        .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; border-left: 1px solid #333; overflow-y: auto; }
-        .sidebar.active { right: 0; }
-        .sidebar-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: white; display: block; text-decoration: none; font-weight: 600; }
+
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(11, 16, 27, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        .sidebar.open { right: 0; }
+        .sidebar-link { display: block; padding: 15px; color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+
+        /* VISTAS */
         .view { display: none; flex-direction: column; align-items: center; padding: 100px 20px 40px; min-height: 100vh; box-sizing: border-box; }
-        .view.active { display: flex; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; width: 100%; max-width: 1100px; margin-top: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #222; border-left: 4px solid var(--primary); position: relative; }
-        .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; background: var(--primary); color: #000; font-weight: 800; margin-bottom: 10px; }
-        .card-meta { font-size: 0.7rem; opacity: 0.4; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }
-        .admin-box { background: var(--card); padding: 20px; border-radius: 15px; width: 100%; max-width: 550px; border: 1px solid #333; margin-bottom: 20px; }
-        .admin-section { border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 15px; }
-        .admin-section h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; background: #000; border: 1px solid #333; color: white; box-sizing: border-box; font-family: inherit; }
-        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--primary); color: #000; font-weight: 800; cursor: pointer; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; display: none; align-items: center; justify-content: center; }
-        .delete-btn { color: #ff4444; font-size: 10px; cursor: pointer; margin-left: 10px; }
+        .view.active { display: flex; animation: fadeIn 0.3s ease; }
+
+        /* DISEÑO DE ITEMS */
+        .norm-item { 
+            margin: 10px; padding: 15px; background: rgba(255,255,255,0.03); 
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); 
+            display: inline-block; width: 100%; box-sizing: border-box;
+        }
+        .norm-item h3 { margin: 0 0 8px 0; font-size: 16px; color: var(--primary); }
+        .norm-item p { margin: 0; font-size: 14px; opacity: 0.8; white-space: pre-line; line-height: 1.4; }
+        .norm-item img { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 300px; object-fit: cover; }
+        .tag-sub { font-size: 10px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
+
+        /* ACORDEONES */
+        .accordion { width: 100%; max-width: 800px; margin-bottom: 10px; background: var(--card); border-radius: 15px; overflow: hidden; }
+        .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-left: 4px solid var(--primary); }
+        .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 5px; }
+        .accordion.open .acc-content { max-height: 10000px; padding: 10px; }
+
+        /* ADMIN */
+        .admin-box { width: 100%; max-width: 650px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; font-family: inherit; }
+        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; transition: 0.2s; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .btn-purple { background: linear-gradient(to right, #7c3aed, #2563eb); }
+        
+        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="nav-brand" id="header-name">ESPAÑA DISTRICT</div>
-        <div style="font-size: 28px; cursor: pointer;" onclick="toggleSidebar()">☰</div>
+        <div id="cfg-nav-title" style="font-weight: 900; letter-spacing: 1px;">ESPAÑA DISTRICT</div>
+        <div style="cursor:pointer; font-size: 24px;" onclick="toggleSide()">☰</div>
     </header>
 
     <div id="sidebar" class="sidebar">
-        <div style="font-size: 30px; cursor: pointer; margin-bottom: 20px;" onclick="toggleSidebar()">×</div>
-        <div id="dynamic-menu"></div>
-        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-        <div class="sidebar-item" style="color: var(--primary);" onclick="openLogin()">⚙️ Panel Admin</div>
+        <span style="float:right; cursor:pointer; font-size: 30px;" onclick="toggleSide()">×</span>
+        <div class="sidebar-link" onclick="goTo('home')">🏠 Inicio</div>
+        <div class="sidebar-link" onclick="goTo('norms')">📜 Normativas</div>
+        <div class="sidebar-link" onclick="goTo('gov')">🏛️ Gobierno</div>
+        <div class="sidebar-link" onclick="openLogin()" style="color:var(--gov); border-top:1px solid #333; margin-top:20px;">⚙️ ADMIN PANEL</div>
     </div>
 
     <section id="view-home" class="view active">
-        <img id="home-logo" src="" style="width: 120px; margin-bottom: 20px; display:none;">
-        <h1 id="home-name">Wheeboks</h1>
-        <p id="home-desc" style="opacity:0.6; text-align: center; max-width: 500px;">Conectando...</p>
-        <div id="home-buttons" style="display:flex; gap:10px; margin-top:20px; flex-wrap: wrap; justify-content: center;"></div>
+        <img id="display-logo" src="" style="width:120px; height:120px; border-radius:30px; margin-bottom:15px; display:none;">
+        <h1 id="display-title" style="font-size: 2.5rem; margin-bottom: 5px;">España District</h1>
+        <p id="display-desc" style="opacity: 0.7;">Conectando con el servidor...</p>
+        
+        <input type="text" style="width:90%; max-width:400px; padding:15px; border-radius:12px; background:var(--card); border:1px solid var(--primary); color:white; margin:25px 0; text-align: center;" placeholder="🔍 Buscar normativa o información..." onkeyup="globalSearch(this.value)">
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-purple" onclick="goTo('norms')">Normativas</button>
+            <button class="btn btn-purple" style="background:var(--gov)" onclick="goTo('gov')">Gobierno</button>
+        </div>
     </section>
 
-    <section id="view-section" class="view">
-        <h2 id="sec-title-view">Sección</h2>
-        <div id="sub-filters" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;"></div>
-        <div id="render-grid" class="grid"></div>
+    <section id="view-norms" class="view"><h2>📜 Normativas</h2><div id="render-norms" style="width:100%; max-width: 800px;"></div></section>
+    <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%; max-width: 800px;"></div></section>
+
+    <section id="view-admin" class="view">
+        <div id="staff-info-bar" style="background:var(--primary); padding:10px 25px; border-radius:30px; font-size:12px; font-weight:800; margin-bottom:20px; box-shadow: 0 4px 15px rgba(88,101,242,0.3);"></div>
+        
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; max-width:750px; padding: 10px;">
+            <button class="btn btn-purple" onclick="tab('t-content')">📝 Contenido</button>
+            <button class="btn btn-purple" style="background:#444" onclick="tab('t-design')">🎨 Diseño</button>
+            <button class="btn btn-purple" style="background:#222" onclick="protectedTab('t-security')">🔒 Seguridad</button>
+            <button class="btn" style="background:#ff4444" onclick="location.reload()">🚪 Salir</button>
+        </div>
+
+        <div id="t-content" class="admin-box">
+            <h3 style="color:var(--primary)">Gestionar Secciones y Roles</h3>
+            <select id="type-selector">
+                <option value="norms">Normativas</option>
+                <option value="gov">Gobierno</option>
+            </select>
+            <input type="text" id="new-cat-name" placeholder="Nombre de la Sección (Ej: Código Penal)">
+            <button class="btn btn-purple" style="width:100%" onclick="addCategory()">Crear Sección</button>
+            
+            <hr style="opacity:0.1; margin:25px 0">
+            
+            <h3 style="color:var(--gov)">Publicar Item</h3>
+            <select id="dest-cat" onchange="updateSubList()"></select>
+            <input type="text" id="new-sub-tag" placeholder="Sub-Sección/Rol (Ej: Robo, General, LSPD)">
+            <input type="text" id="item-title" placeholder="Título">
+            <textarea id="item-desc" rows="4" placeholder="Escribe aquí el contenido..."></textarea>
+            <input type="text" id="item-img" placeholder="Link de imagen (Opcional)">
+            <button class="btn btn-purple" style="width:100%; background:var(--gov)" onclick="saveItem()">Publicar Firmado</button>
+            
+            <div id="admin-manage-list" style="margin-top:30px"></div>
+        </div>
+
+        <div id="t-design" class="admin-box" style="display:none">
+            <h3>Apariencia del Portal</h3>
+            <label>Título del Proyecto:</label><input type="text" id="cfg-t">
+            <label>Descripción Inicio:</label><input type="text" id="cfg-d">
+            <label>URL del Logo:</label><input type="text" id="cfg-l">
+            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Actualizar Diseño</button>
+        </div>
+
+        <div id="t-security" class="admin-box" style="display:none">
+            <h3>Conexiones y Llaves</h3>
+            <label>Webhook de Logs (Discord):</label><input type="text" id="cfg-h">
+            <label>Nueva Clave Admin:</label><input type="password" id="cfg-p">
+            <button class="btn btn-purple" style="width:100%" onclick="saveSecurity()">Guardar Cambios</button>
+        </div>
     </section>
 
-    <div id="login-modal" class="overlay">
-        <div class="admin-box" style="max-width:350px;">
-            <h3>Acceso Staff</h3>
-            <input type="text" id="st-user" placeholder="Tu Nombre">
+    <div id="login" class="overlay">
+        <div class="admin-box" style="max-width:340px; text-align:center;">
+            <h2 style="margin-bottom:10px">Acceso Staff</h2>
+            <input type="text" id="st-name" placeholder="Tu Nombre">
             <input type="text" id="st-range" placeholder="Tu Rango">
-            <input type="password" id="st-pass" placeholder="Clave">
-            <button class="btn" onclick="checkLogin()">Entrar</button>
+            <input type="password" id="st-pass" placeholder="Contraseña Maestra">
+            <button class="btn btn-purple" style="width:100%; margin-top:15px;" onclick="checkLogin()">Entrar al Panel</button>
+            <p onclick="closeLogin()" style="cursor:pointer; opacity:0.5; margin-top:15px;">Volver</p>
         </div>
     </div>
 
-    <section id="view-admin" class="view">
-        <div class="admin-box">
-            <h2 style="margin:0 0 20px 0;">Panel Wheeboks</h2>
-            
-            <div class="admin-section">
-                <h4>1. Wheeboks Log (Diseño Global)</h4>
-                <input type="text" id="conf-name" placeholder="Nombre de la Web">
-                <input type="text" id="conf-logo" placeholder="URL del Logo (Link)">
-                <textarea id="conf-desc" placeholder="Descripción de bienvenida"></textarea>
-                <button class="btn" onclick="saveLog()">Guardar Log</button>
-            </div>
-
-            <div class="admin-section">
-                <h4>2. Categorías Principales</h4>
-                <input type="text" id="new-cat-name" placeholder="Ej: Normativas">
-                <button class="btn" style="background:white" onclick="addCat()">Añadir Categoría</button>
-                <div id="list-cats" style="margin-top:10px; font-size:12px;"></div>
-            </div>
-
-            <div class="admin-section">
-                <h4>3. Sub-Secciones (Roles/Tipos)</h4>
-                <select id="sub-parent"></select>
-                <input type="text" id="new-sub-name" placeholder="Ej: Roles de Mafia">
-                <button class="btn" style="background:white" onclick="addSub()">Añadir Rol a Categoría</button>
-            </div>
-
-            <div class="admin-section">
-                <h4>4. Publicar Contenido</h4>
-                <select id="p-cat" onchange="updateSubSelect()"></select>
-                <select id="p-sub"></select>
-                <input type="text" id="p-title" placeholder="Título">
-                <textarea id="p-desc" placeholder="Mensaje/Norma"></textarea>
-                <button class="btn" onclick="publish()">Publicar Firmado</button>
-            </div>
-
-            <button class="btn" style="background:#222; color:white;" onclick="location.reload()">Cerrar Sesión</button>
+    <div id="second-login" class="overlay">
+        <div class="admin-box" style="max-width:300px; text-align:center;">
+            <h3>Verificación Requerida</h3>
+            <input type="password" id="pass-2" placeholder="Repite la clave">
+            <button class="btn btn-purple" style="width:100%" onclick="verifyProtected()">Desbloquear</button>
         </div>
-    </section>
+    </div>
 
     <script>
-        // CREDENCIALES CARGADAS DESDE TUS FOTOS
+        // CONFIGURACIÓN DE TU FIREBASE (Sacada de tus fotos)
         const firebaseConfig = {
             apiKey: "AIzaSyALZQFctcGybVPRnIVtGzMqZ0lFBUkZqC4",
             authDomain: "wheeboks-2896f.firebaseapp.com",
@@ -120,131 +161,177 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let user = "", range = "";
+        let appData = { config: {}, norms: {}, gov: {}, posts: {} };
+        let staff = { name: "", range: "" };
+        let pendingTab = "";
 
-        db.ref('wheeboks_system').on('value', (snap) => {
-            const data = snap.val() || {};
-            renderUI(data);
+        // ESCUCHA TIEMPO REAL
+        db.ref('wheeboks_pro').on('value', snap => {
+            appData = snap.val() || { config: {title: "España District", desc: "Portal", pass: "pampiano17"}, norms: {}, gov: {}, posts: {} };
+            render();
         });
 
-        function renderUI(data) {
-            const config = data.config || {name: "España District", desc: "Configura tu servidor en el panel"};
-            const cats = data.categories || {};
-            
-            document.getElementById('header-name').innerText = config.name;
-            document.getElementById('home-name').innerText = config.name;
-            document.getElementById('home-desc').innerText = config.desc;
-            if(config.logo) { document.getElementById('home-logo').src = config.logo; document.getElementById('home-logo').style.display='block'; }
-
-            const menu = document.getElementById('dynamic-menu');
-            const hBtns = document.getElementById('home-buttons');
-            const pCat = document.getElementById('p-cat');
-            const sParent = document.getElementById('sub-parent');
-            const lCats = document.getElementById('list-cats');
-
-            menu.innerHTML = `<div class="sidebar-item" onclick="goTo('home')">🏠 Inicio</div>`;
-            hBtns.innerHTML = ""; pCat.innerHTML = ""; sParent.innerHTML = ""; lCats.innerHTML = "";
-
-            for(let id in cats) {
-                menu.innerHTML += `<div class="sidebar-item" onclick="openCat('${id}')">${cats[id]}</div>`;
-                hBtns.innerHTML += `<button class="btn" style="width:auto; padding:10px 20px" onclick="openCat('${id}')">${cats[id]}</button>`;
-                pCat.innerHTML += `<option value="${id}">${cats[id]}</option>`;
-                sParent.innerHTML += `<option value="${id}">${cats[id]}</option>`;
-                lCats.innerHTML += `<div>${cats[id]} <span class="delete-btn" onclick="delCat('${id}')">[X Eliminar]</span></div>`;
-            }
-            updateSubSelect();
+        async function sendLog(title, desc) {
+            if(!appData.config.hook) return;
+            fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+                embeds: [{ title, description: desc, color: 5793266, fields: [{name: "Staff", value: staff.name, inline: true}, {name: "Rango", value: staff.range, inline: true}], timestamp: new Date() }]
+            })});
         }
 
-        function saveLog() {
-            db.ref('wheeboks_system/config').set({
-                name: document.getElementById('conf-name').value,
-                logo: document.getElementById('conf-logo').value,
-                desc: document.getElementById('conf-desc').value
-            });
-            alert("¡Diseño Guardado!");
+        // NAVEGACIÓN
+        function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
+        function goTo(id) { 
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); 
+            document.getElementById('view-' + id).classList.add('active'); 
+            if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); 
+        }
+        function tab(id) { 
+            document.querySelectorAll('.admin-box').forEach(b => b.style.display='none'); 
+            document.getElementById(id).style.display='block'; 
         }
 
-        function addCat() {
-            const name = document.getElementById('new-cat-name').value;
-            if(name) {
-                db.ref('wheeboks_system/categories').push(name);
-                document.getElementById('new-cat-name').value = "";
-            }
-        }
-
-        function delCat(id) { if(confirm("¿Borrar sección?")) db.ref('wheeboks_system/categories/' + id).remove(); }
-
-        function addSub() {
-            const parent = document.getElementById('sub-parent').value;
-            const name = document.getElementById('new-sub-name').value;
-            if(name) {
-                db.ref('wheeboks_system/subsections/' + parent).push(name);
-                document.getElementById('new-sub-name').value = "";
-                alert("Sub-sección añadida");
-            }
-        }
-
-        function updateSubSelect() {
-            const parent = document.getElementById('p-cat').value;
-            const select = document.getElementById('p-sub');
-            select.innerHTML = '<option value="General">General</option>';
-            db.ref('wheeboks_system/subsections/' + parent).once('value', snap => {
-                const val = snap.val();
-                for(let id in val) select.innerHTML += `<option value="${val[id]}">${val[id]}</option>`;
-            });
-        }
-
-        function publish() {
-            const cat = document.getElementById('p-cat').value;
-            db.ref('wheeboks_system/posts').push({
-                title: document.getElementById('p-title').value,
-                desc: document.getElementById('p-desc').value,
-                cat: cat, sub: document.getElementById('p-sub').value,
-                staff: user, range: range, date: new Date().toLocaleDateString()
-            });
-            alert("Publicado correctamente");
-        }
-
-        function openCat(id, filter = "Todo") {
-            db.ref('wheeboks_system').once('value', snap => {
-                const data = snap.val();
-                document.getElementById('sec-title-view').innerText = data.categories[id];
-                const filters = document.getElementById('sub-filters');
-                filters.innerHTML = `<button class="btn" style="width:auto; font-size:10px; background:${filter === 'Todo' ? 'var(--primary)' : '#222'}" onclick="openCat('${id}', 'Todo')">Todo</button>`;
-                
-                const subs = data.subsections ? data.subsections[id] : {};
-                for(let sid in subs) {
-                    filters.innerHTML += `<button class="btn" style="width:auto; font-size:10px; background:${filter === subs[sid] ? 'var(--primary)' : '#222'}; color:${filter === subs[sid] ? '#000' : '#fff'}" onclick="openCat('${id}', '${subs[sid]}')">${subs[sid]}</button>`;
-                }
-
-                const grid = document.getElementById('render-grid'); grid.innerHTML = "";
-                const posts = data.posts || {};
-                for(let pid in posts) {
-                    const p = posts[pid];
-                    if(p.cat === id && (filter === "Todo" || p.sub === filter)) {
-                        grid.innerHTML += `<div class="card"><span class="tag">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p><div class="card-meta">Por: ${p.staff} (${p.range}) | ${p.date}</div></div>`;
-                    }
-                }
-                goTo('section');
-            });
-        }
+        function openLogin() { toggleSide(); document.getElementById('login').style.display='flex'; }
+        function closeLogin() { document.getElementById('login').style.display='none'; }
 
         function checkLogin() {
-            if(document.getElementById('st-pass').value === "pampiano17") {
-                user = document.getElementById('st-user').value;
-                range = document.getElementById('st-range').value;
-                document.getElementById('login-modal').style.display='none'; goTo('admin');
-            } else alert("Clave Incorrecta");
+            const p = document.getElementById('st-pass').value;
+            staff.name = document.getElementById('st-name').value;
+            staff.range = document.getElementById('st-range').value;
+            if(p === appData.config.pass && staff.name && staff.range) {
+                document.getElementById('staff-info-bar').innerText = `MODO ADMINISTRADOR: ${staff.name.toUpperCase()} (${staff.range.toUpperCase()})`;
+                closeLogin(); goTo('admin');
+                sendLog("🔑 Sesión Iniciada", "Acceso concedido al panel administrativo.");
+            } else { alert("Clave o datos incorrectos"); }
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function openLogin() { toggleSidebar(); document.getElementById('login-modal').style.display='flex'; }
-        function goTo(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + id).classList.add('active');
-            if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
+        function protectedTab(id) { pendingTab = id; document.getElementById('second-login').style.display='flex'; }
+        function verifyProtected() {
+            if(document.getElementById('pass-2').value === appData.config.pass) {
+                document.getElementById('second-login').style.display='none'; tab(pendingTab);
+            } else { alert("Error de clave"); }
+        }
+
+        // FUNCIONES ADMIN
+        function addCategory() {
+            const type = document.getElementById('type-selector').value;
+            const name = document.getElementById('new-cat-name').value;
+            if(name) {
+                db.ref(`wheeboks_pro/${type}`).push(name);
+                document.getElementById('new-cat-name').value = "";
+                sendLog("📁 Nueva Sección", `Se creó la sección **${name}** en ${type}`);
+            }
+        }
+
+        function saveItem() {
+            const catId = document.getElementById('dest-cat').value;
+            const type = document.getElementById('type-selector').value;
+            const title = document.getElementById('item-title').value;
+            const desc = document.getElementById('item-desc').value;
+            const sub = document.getElementById('new-sub-tag').value || "General";
+            const img = document.getElementById('item-img').value;
+
+            if(title && desc) {
+                db.ref(`wheeboks_pro/posts`).push({
+                    catId, type, title, desc, sub, img,
+                    staff: staff.name, range: staff.range, date: new Date().toLocaleDateString()
+                });
+                alert("¡Publicado!");
+                sendLog("📝 Nuevo Post", `Se publicó: **${title}** en la categoría seleccionada.`);
+            }
+        }
+
+        function saveDesign() {
+            db.ref('wheeboks_pro/config').update({
+                title: document.getElementById('cfg-t').value,
+                desc: document.getElementById('cfg-d').value,
+                logo: document.getElementById('cfg-l').value
+            });
+        }
+
+        function saveSecurity() {
+            db.ref('wheeboks_pro/config').update({
+                hook: document.getElementById('cfg-h').value,
+                pass: document.getElementById('cfg-p').value
+            });
+            alert("Seguridad actualizada");
+        }
+
+        function deletePost(id) { if(confirm("¿Eliminar publicación?")) db.ref(`wheeboks_pro/posts/${id}`).remove(); }
+        function deleteCat(type, id) { if(confirm("¿Eliminar sección y sus contenidos?")) db.ref(`wheeboks_pro/${type}/${id}`).remove(); }
+
+        // RENDERIZADO
+        function render() {
+            const c = appData.config;
+            document.getElementById('display-title').innerText = c.title;
+            document.getElementById('cfg-nav-title').innerText = c.title.toUpperCase();
+            document.getElementById('display-desc').innerText = c.desc;
+            document.getElementById('tab-title').innerText = c.title + " | Portal";
+            if(c.logo) { document.getElementById('display-logo').src = c.logo; document.getElementById('display-logo').style.display='block'; }
+
+            // Limpiar contenedores
+            ['norms', 'gov'].forEach(t => document.getElementById('render-'+t).innerHTML = "");
+            const sel = document.getElementById('dest-cat'); sel.innerHTML = "";
+            const manage = document.getElementById('admin-manage-list'); manage.innerHTML = "<h4>Gestión de Datos</h4>";
+
+            // Renderizar Categorías
+            ['norms', 'gov'].forEach(type => {
+                const cats = appData[type] || {};
+                for(let id in cats) {
+                    if(document.getElementById('type-selector').value === type) sel.innerHTML += `<option value="${id}">${cats[id]}</option>`;
+                    
+                    // Crear Acordeón
+                    let itemsHtml = "";
+                    const posts = appData.posts || {};
+                    for(let pid in posts) {
+                        const p = posts[pid];
+                        if(p.catId === id) {
+                            itemsHtml += `
+                                <div class="norm-item">
+                                    <span class="tag-sub">${p.sub}</span>
+                                    <h3>${p.title}</h3>
+                                    <p>${p.desc}</p>
+                                    ${p.img ? `<img src="${p.img}">` : ''}
+                                    <div style="font-size:9px; opacity:0.4; margin-top:8px;">Por: ${p.staff} | ${p.date}</div>
+                                </div>`;
+                        }
+                    }
+                    
+                    const acc = `
+                        <div class="accordion">
+                            <div class="acc-header" onclick="this.parentElement.classList.toggle('open')">
+                                ${cats[id]} <span>▼</span>
+                            </div>
+                            <div class="acc-content">${itemsHtml || '<p style="padding:20px; opacity:0.5">Sin contenido aún...</p>'}</div>
+                        </div>`;
+                    document.getElementById('render-'+type).innerHTML += acc;
+
+                    // Lista Admin
+                    manage.innerHTML += `<div style="background:#0b101b; padding:10px; margin-top:5px; border-radius:10px; font-size:12px;">
+                        <b>[${type.toUpperCase()}] ${cats[id]}</b> 
+                        <span onclick="deleteCat('${type}','${id}')" style="color:red; float:right; cursor:pointer">Eliminar Sección</span>
+                    </div>`;
+                }
+            });
+
+            // Lista Posts Admin
+            const posts = appData.posts || {};
+            for(let id in posts) {
+                manage.innerHTML += `<div style="font-size:11px; padding:5px 10px; opacity:0.7; border-bottom:1px solid #333;">
+                    ${posts[id].title} <span onclick="deletePost('${id}')" style="color:red; float:right; cursor:pointer">Borrar</span>
+                </div>`;
+            }
+        }
+
+        function globalSearch(q) {
+            if(q.length < 2) return;
+            goTo('norms');
+            document.querySelectorAll('.accordion').forEach(acc => {
+                const text = acc.innerText.toLowerCase();
+                const match = text.includes(q.toLowerCase());
+                acc.style.display = match ? 'block' : 'none';
+                if(match) acc.classList.add('open');
+            });
         }
     </script>
 </body>
 </html>
- 
