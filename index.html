@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="tab-title">España District | Portal</title>
+    <title>España District | Portal v8</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #0b101b; --primary: #5865f2; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }
-        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(11, 16, 27, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
         .sidebar.open { right: 0; }
         .sidebar-link { display: block; padding: 15px; color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
         .view { display: none; flex-direction: column; align-items: center; padding: 100px 20px 40px; min-height: 100vh; box-sizing: border-box; }
         .view.active { display: flex; animation: fadeIn 0.3s ease; }
-        .norm-item { margin: 10px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box; }
+        .search-box { width: 100%; max-width: 400px; padding: 12px; border-radius: 10px; background: var(--card); border: 1px solid var(--primary); color: white; margin-bottom: 20px; text-align: center; }
+        .norm-item { margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box; }
         .norm-item h3 { margin: 5px 0; font-size: 16px; color: var(--primary); }
-        .norm-item p { margin: 0; font-size: 14px; opacity: 0.8; white-space: pre-line; }
-        .norm-item img { width: 100%; border-radius: 8px; margin-top: 10px; }
-        .tag-sub { font-size: 10px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .norm-item p { margin: 0; font-size: 14px; opacity: 0.8; white-space: pre-line; line-height: 1.5; }
+        .tag-sub { font-size: 10px; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; }
         .accordion { width: 100%; max-width: 800px; margin-bottom: 10px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-left: 4px solid var(--primary); }
         .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; padding: 0 15px; }
-        .accordion.open .acc-content { max-height: 5000px; padding: 15px; }
-        .admin-box { width: 100%; max-width: 650px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; }
-        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; }
+        .accordion.open .acc-content { max-height: 10000px; padding: 15px; }
+        .admin-box { width: 100%; max-width: 650px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; font-family: inherit; }
+        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; transition: 0.2s; }
         .btn-purple { background: linear-gradient(to right, #7c3aed, #2563eb); }
-        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .overlay { position: fixed; inset: 0; background: rgba(11, 16, 27, 0.98); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -49,67 +49,80 @@
     </div>
 
     <section id="view-home" class="view active">
-        <img id="display-logo" src="" style="width:120px; height:120px; border-radius:30px; margin-bottom:15px; display:none;">
         <h1 id="display-title">España District</h1>
-        <p id="display-desc">Cargando...</p>
+        <p id="display-desc">Bienvenido al portal oficial.</p>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button class="btn btn-purple" onclick="goTo('norms')">Normativas</button>
             <button class="btn btn-purple" style="background:var(--gov)" onclick="goTo('gov')">Gobierno</button>
         </div>
     </section>
 
-    <section id="view-norms" class="view"><h2>📜 Normativas</h2><div id="render-norms" style="width:100%; max-width: 800px;"></div></section>
-    <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%; max-width: 800px;"></div></section>
+    <section id="view-norms" class="view">
+        <h2>📜 Normativas</h2>
+        <input type="text" class="search-box" placeholder="🔍 Buscar normas..." onkeyup="search('norms', this.value)">
+        <div id="render-norms" style="width:100%; max-width: 800px;"></div>
+    </section>
+
+    <section id="view-gov" class="view">
+        <h2>🏛️ Gobierno</h2>
+        <input type="text" class="search-box" style="border-color:var(--gov)" placeholder="🔍 Buscar en gobierno..." onkeyup="search('gov', this.value)">
+        <div id="render-gov" style="width:100%; max-width: 800px;"></div>
+    </section>
 
     <section id="view-admin" class="view">
-        <div id="staff-info-bar" style="background:var(--primary); padding:10px 25px; border-radius:30px; font-size:11px; font-weight:800; margin-bottom:15px;"></div>
+        <div id="staff-bar" style="background:var(--primary); padding:10px 20px; border-radius:20px; font-size:11px; margin-bottom:15px;"></div>
         <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x:auto; width:100%; max-width:700px;">
-            <button class="btn btn-purple" onclick="tab('t-norms-admin')">📜 Normas</button>
-            <button class="btn btn-purple" style="background:var(--gov)" onclick="tab('t-gov-admin')">🏛️ Gobierno</button>
-            <button class="btn" style="background:#ff4444" onclick="location.reload()">🚪 Salir</button>
+            <button class="btn btn-purple" onclick="tab('adm-n')">Normas</button>
+            <button class="btn btn-purple" style="background:var(--gov)" onclick="tab('adm-g')">Gobierno</button>
+            <button class="btn" style="background:#444" onclick="tab('adm-s')">Seguridad</button>
+            <button class="btn" style="background:#ff4444" onclick="logout()">Salir</button>
         </div>
 
-        <div id="t-norms-admin" class="admin-box">
-            <h3>Secciones Normas</h3>
-            <input type="text" id="new-norm-cat" placeholder="Nueva Categoría">
-            <button class="btn btn-purple" style="width:100%" onclick="addCategory('norms')">Crear</button>
+        <div id="adm-n" class="admin-box">
+            <h3>Gestión Normas</h3>
+            <input type="text" id="in-n-cat" placeholder="Nombre Sección">
+            <button class="btn btn-purple" style="width:100%" onclick="addC('norms')">Crear Sección</button>
             <hr style="opacity:0.1; margin:20px 0">
-            <h3>Publicar Regla</h3>
-            <select id="dest-norm-cat"></select>
-            <input type="text" id="norm-sub" placeholder="Etiqueta">
-            <input type="text" id="norm-t" placeholder="Título">
-            <textarea id="norm-d" rows="3" placeholder="Contenido"></textarea>
-            <button class="btn btn-purple" style="width:100%" onclick="saveItem('norms')">Publicar</button>
-            <div id="manage-norms-list"></div>
+            <select id="sel-n-cat"></select>
+            <input type="text" id="in-n-sub" placeholder="Etiqueta">
+            <input type="text" id="in-n-tit" placeholder="Título">
+            <textarea id="in-n-desc" rows="3" placeholder="Contenido"></textarea>
+            <button class="btn btn-purple" style="width:100%" onclick="addP('norms')">Publicar</button>
+            <div id="list-n-adm"></div>
         </div>
 
-        <div id="t-gov-admin" class="admin-box" style="display:none">
-            <h3>Secciones Gobierno</h3>
-            <input type="text" id="new-gov-cat" placeholder="Nueva Categoría">
-            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addCategory('gov')">Crear</button>
+        <div id="adm-g" class="admin-box" style="display:none">
+            <h3>Gestión Gobierno</h3>
+            <input type="text" id="in-g-cat" placeholder="Nombre Sección">
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addC('gov')">Crear Sección</button>
             <hr style="opacity:0.1; margin:20px 0">
-            <h3>Publicar Info</h3>
-            <select id="dest-gov-cat"></select>
-            <input type="text" id="gov-sub" placeholder="Etiqueta">
-            <input type="text" id="gov-t" placeholder="Título">
-            <textarea id="gov-d" rows="3" placeholder="Contenido"></textarea>
-            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="saveItem('gov')">Publicar</button>
-            <div id="manage-gov-list"></div>
+            <select id="sel-g-cat"></select>
+            <input type="text" id="in-g-sub" placeholder="Etiqueta">
+            <input type="text" id="in-g-tit" placeholder="Título">
+            <textarea id="in-g-desc" rows="3" placeholder="Contenido"></textarea>
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addP('gov')">Publicar</button>
+            <div id="list-g-adm"></div>
+        </div>
+
+        <div id="adm-s" class="admin-box" style="display:none">
+            <h3>Seguridad</h3>
+            <input type="password" id="cfg-p" placeholder="Nueva Contraseña">
+            <button class="btn btn-purple" style="width:100%" onclick="saveS()">Actualizar</button>
         </div>
     </section>
 
-    <div id="login" class="overlay">
+    <div id="login-scr" class="overlay">
         <div class="admin-box" style="max-width:320px; text-align:center;">
-            <h2>Acceso Staff</h2>
-            <input type="text" id="st-name" placeholder="Tu Nombre">
-            <input type="text" id="st-range" placeholder="Tu Rango">
-            <input type="password" id="st-pass" placeholder="Clave">
-            <button class="btn btn-purple" style="width:100%" onclick="checkLogin()">Entrar</button>
+            <h2>Staff Login</h2>
+            <input type="text" id="log-n" placeholder="Nombre">
+            <input type="text" id="log-r" placeholder="Rango">
+            <input type="password" id="log-p" placeholder="Clave">
+            <button class="btn btn-purple" style="width:100%" onclick="login()">Entrar</button>
+            <p onclick="document.getElementById('login-scr').style.display='none'" style="cursor:pointer;opacity:0.5">Cerrar</p>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyALZQFctcGybVPRnIVtGzMqZ0lFBUkZqC4",
             authDomain: "wheeboks-2896f.firebaseapp.com",
@@ -120,86 +133,78 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let appData = { config: {pass: "pampiano17"}, norms: {}, gov: {}, posts: {} };
-        let staff = { name: "", range: "" };
+        let appD = { config: {pass:"pampiano17"}, norms:{}, gov:{}, posts:{} };
+        let user = JSON.parse(sessionStorage.getItem('ed_s')) || null;
 
-        // SINCRONIZACIÓN EN TIEMPO REAL
-        db.ref('wheeboks_v7').on('value', snap => {
-            const data = snap.val();
-            if(data) appData = data;
+        db.ref('ed_v9').on('value', snap => {
+            const d = snap.val();
+            if(d) appD = d;
             render();
+            if(user) document.getElementById('staff-bar').innerText = `Staff: ${user.name} | ${user.range}`;
         });
 
-        function checkLogin() {
-            const p = document.getElementById('st-pass').value;
-            staff.name = document.getElementById('st-name').value;
-            staff.range = document.getElementById('st-range').value;
-            if(p === (appData.config.pass || "pampiano17") && staff.name) {
-                document.getElementById('staff-info-bar').innerText = `CONECTADO: ${staff.name.toUpperCase()}`;
-                document.getElementById('login').style.display='none'; goTo('admin');
-            } else { alert("Error"); }
+        function login() {
+            const n = document.getElementById('log-n').value, r = document.getElementById('log-r').value, p = document.getElementById('log-p').value;
+            if(p === (appD.config.pass || "pampiano17") && n) {
+                user = {name:n, range:r}; sessionStorage.setItem('ed_s', JSON.stringify(user));
+                document.getElementById('login-scr').style.display='none'; goTo('admin');
+            } else alert("Error");
         }
 
+        function logout() { sessionStorage.removeItem('ed_s'); location.reload(); }
+
         function render() {
-            const config = appData.config || {};
-            document.getElementById('display-title').innerText = config.title || "España District";
-            document.getElementById('display-desc').innerText = config.desc || "Portal Oficial";
-
-            ['norms', 'gov'].forEach(type => {
-                const container = document.getElementById('render-'+type);
-                const select = document.getElementById('dest-'+type+'-cat');
-                const manage = document.getElementById('manage-'+type+'-list');
-                
-                container.innerHTML = "";
-                select.innerHTML = "";
-                manage.innerHTML = "";
-
-                const categories = appData[type] || {};
-                for(let id in categories) {
-                    select.innerHTML += `<option value="${id}">${categories[id]}</option>`;
-                    manage.innerHTML += `<div style="padding:5px; font-size:12px; opacity:0.6;">${categories[id]} <span onclick="deleteCat('${type}','${id}')" style="color:red; cursor:pointer; float:right;">X</span></div>`;
-
-                    let postsHtml = "";
-                    const allPosts = appData.posts || {};
-                    for(let pid in allPosts) {
-                        const p = allPosts[pid];
-                        if(p.type === type && p.catId === id) {
-                            postsHtml += `<div class="norm-item"><span class="tag-sub">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p></div>`;
+            ['norms','gov'].forEach(t => {
+                const cont = document.getElementById('render-'+t), sel = document.getElementById('sel-'+(t==='norms'?'n':'g')+'-cat'), admList = document.getElementById('list-'+(t==='norms'?'n':'g')+'-adm');
+                cont.innerHTML = ""; sel.innerHTML = ""; admList.innerHTML = "<h4>Secciones:</h4>";
+                const cats = appD[t] || {};
+                for(let id in cats) {
+                    sel.innerHTML += `<option value="${id}">${cats[id]}</option>`;
+                    admList.innerHTML += `<div style="font-size:12px;opacity:0.6;margin-bottom:5px;">${cats[id]} <span onclick="delC('${t}','${id}')" style="color:red;cursor:pointer;float:right">X</span></div>`;
+                    let ps = "";
+                    const allP = appD.posts || {};
+                    for(let pid in allP) {
+                        const p = allP[pid];
+                        if(p.type === t && p.catId === id) {
+                            ps += `<div class="norm-item"><span class="tag-sub">${p.sub}</span><h3>${p.title}</h3><p>${p.desc}</p><span onclick="delP('${pid}')" style="color:red;font-size:10px;cursor:pointer;display:${user?'block':'none'}">[Eliminar]</span></div>`;
                         }
                     }
-                    container.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${categories[id]} <span>▼</span></div><div class="acc-content">${postsHtml || 'Vacío'}</div></div>`;
+                    cont.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cats[id]} <span>▼</span></div><div class="acc-content">${ps || 'Vacío'}</div></div>`;
                 }
             });
         }
 
-        function addCategory(type) {
-            const name = document.getElementById('new-'+type+'-cat').value;
-            if(name) {
-                db.ref(`wheeboks_v7/${type}`).push(name);
-                document.getElementById('new-'+type+'-cat').value = "";
-            }
+        function addC(t) { 
+            const i = document.getElementById(t==='norms'?'in-n-cat':'in-g-cat');
+            if(i.value) { db.ref(`ed_v9/${t}`).push(i.value); i.value = ""; }
         }
 
-        function saveItem(type) {
-            const catId = document.getElementById('dest-'+type+'-cat').value;
-            const sub = document.getElementById(type === 'norms' ? 'norm-sub' : 'gov-sub').value;
-            const title = document.getElementById(type === 'norms' ? 'norm-t' : 'gov-t').value;
-            const desc = document.getElementById(type === 'norms' ? 'norm-d' : 'gov-d').value;
-
-            if(catId && title && desc) {
-                db.ref('wheeboks_v7/posts').push({ type, catId, sub: sub || "General", title, desc });
-                alert("Guardado");
-                document.getElementById(type === 'norms' ? 'norm-t' : 'gov-t').value = "";
-                document.getElementById(type === 'norms' ? 'norm-d' : 'gov-d').value = "";
-            } else { alert("Faltan datos"); }
+        function addP(t) {
+            const pre = t==='norms'?'n':'g';
+            const cid = document.getElementById(`sel-${pre}-cat`).value, sub = document.getElementById(`in-${pre}-sub`).value, tit = document.getElementById(`in-${pre}-tit`).value, desc = document.getElementById(`in-${pre}-desc`).value;
+            if(cid && tit && desc) {
+                db.ref('ed_v9/posts').push({ type:t, catId:cid, sub:sub||"Info", title:tit, desc:desc });
+                alert("Enviado"); document.getElementById(`in-${pre}-tit`).value = ""; document.getElementById(`in-${pre}-desc`).value = "";
+            } else alert("Completa los campos");
         }
 
-        function deleteCat(type, id) { if(confirm("¿Borrar?")) db.ref(`wheeboks_v7/${type}/${id}`).remove(); }
+        function delC(t,id) { if(confirm("¿Borrar sección?")) db.ref(`ed_v9/${t}/${id}`).remove(); }
+        function delP(id) { if(confirm("¿Borrar post?")) db.ref(`ed_v9/posts/${id}`).remove(); }
+        function saveS() { db.ref('ed_v9/config').update({pass: document.getElementById('cfg-p').value}); alert("Actualizado"); }
+
         function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
         function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); }
         function tab(id) { document.querySelectorAll('.admin-box').forEach(b => b.style.display='none'); document.getElementById(id).style.display='block'; }
-        function openLogin() { toggleSide(); document.getElementById('login').style.display='flex'; }
+        function openLogin() { if(user) goTo('admin'); else document.getElementById('login-scr').style.display='flex'; toggleSide(); }
+        
+        function search(v, q) {
+            const accs = document.getElementById('render-'+v).getElementsByClassName('accordion');
+            for(let a of accs) {
+                const hasText = a.innerText.toLowerCase().includes(q.toLowerCase());
+                a.style.display = hasText ? "block" : "none";
+                if(q.length > 2 && hasText) a.classList.add('open');
+            }
+        }
     </script>
 </body>
 </html>
- 
