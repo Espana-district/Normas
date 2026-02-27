@@ -8,107 +8,97 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style id="dynamic-style">
-        :root { --bg: #0b101b; --primary: #5865f2; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }
+        :root { --bg: #0b101b; --primary: #5865f2; --card: #161c2d; --text: #f1f5f9; }
     </style>
     <style>
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(11, 16, 27, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-img { height: 40px; vertical-align: middle; margin-right: 10px; border-radius: 50%; }
-        .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
-        .sidebar.open { right: 0; }
-        .sidebar-link { display: block; padding: 15px; color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-        .view { display: none; flex-direction: column; align-items: center; padding: 120px 20px 40px; min-height: 100vh; box-sizing: border-box; text-align: center; }
+        .logo-img { height: 35px; border-radius: 50%; margin-right: 10px; }
+        .view { display: none; flex-direction: column; align-items: center; padding: 120px 20px 40px; min-height: 100vh; box-sizing: border-box; }
         .view.active { display: flex; animation: fadeIn 0.3s ease; }
-        .norm-item { margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); width: 100%; text-align: left; }
         .accordion { width: 100%; max-width: 800px; margin-bottom: 10px; background: var(--card); border-radius: 15px; overflow: hidden; }
-        .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); }
+        .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; padding: 0 15px; }
         .accordion.open .acc-content { max-height: 5000px; padding: 15px; }
-        .admin-box { width: 100%; max-width: 600px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; text-align: left; }
+        .norm-item { margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .admin-box { width: 100%; max-width: 700px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; box-sizing: border-box; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; }
-        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; }
-        .btn-purple { background: var(--primary); }
-        .overlay { position: fixed; inset: 0; background: rgba(11, 16, 27, 0.98); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+        .btn-primary { background: var(--primary); }
+        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; }
+        .list-edit { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div id="nav-brand" style="font-weight: 900; display: flex; align-items: center;">
-            <img id="main-logo" src="" class="logo-img" style="display:none">
-            <span id="main-title">CARGANDO...</span>
+        <div style="display:flex; align-items:center; font-weight:900;">
+            <img id="nav-logo" src="" class="logo-img" style="display:none">
+            <span id="nav-name">ESPAÑA DISTRICT</span>
         </div>
-        <div style="cursor:pointer; font-size: 24px;" onclick="toggleSide()">☰</div>
+        <nav style="display:flex; gap:10px;">
+            <button class="btn" style="background:none;" onclick="goTo('home')">Inicio</button>
+            <button class="btn" style="background:none;" onclick="goTo('norms')">Normas</button>
+            <button class="btn" style="background:none;" onclick="goTo('gov')">Gobierno</button>
+            <button class="btn btn-primary" onclick="checkAuth()">ADMIN</button>
+        </nav>
     </header>
 
-    <div id="sidebar" class="sidebar">
-        <span style="float:right; cursor:pointer; font-size: 30px;" onclick="toggleSide()">×</span>
-        <div class="sidebar-link" onclick="goTo('home')">🏠 Inicio</div>
-        <div class="sidebar-link" onclick="goTo('norms')">📜 Normativas</div>
-        <div class="sidebar-link" onclick="goTo('gov')">🏛️ Gobierno</div>
-        <div class="sidebar-link" onclick="openLogin()" style="color:var(--gov); border-top:1px solid #333; margin-top:20px;">⚙️ ADMIN PANEL</div>
-    </div>
-
     <section id="view-home" class="view active">
-        <img id="hero-logo" src="" style="width: 150px; margin-bottom: 20px; display:none">
-        <h1 id="hero-title">España District</h1>
-        <p id="hero-desc">Cargando información del servidor...</p>
+        <img id="hero-logo" src="" style="width:120px; margin-bottom:20px; display:none">
+        <h1 id="hero-title" style="font-size:2.5rem;">Cargando...</h1>
+        <p id="hero-desc" style="opacity:0.7;"></p>
     </section>
 
-    <section id="view-norms" class="view">
-        <h2>📜 Normativas</h2>
-        <div id="render-norms" style="width:100%; max-width: 800px;"></div>
-    </section>
-
-    <section id="view-gov" class="view">
-        <h2>🏛️ Gobierno</h2>
-        <div id="render-gov" style="width:100%; max-width: 800px;"></div>
-    </section>
+    <section id="view-norms" class="view"><h2>📜 Normativas</h2><div id="render-norms" style="width:100%; max-width:800px;"></div></section>
+    <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%; max-width:800px;"></div></section>
 
     <section id="view-admin" class="view">
-        <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x:auto; width:100%;">
-            <button class="btn btn-purple" onclick="tab('adm-content')">Contenido</button>
-            <button class="btn" style="background:#444" onclick="tab('adm-config')">Diseño/Web</button>
-            <button class="btn" style="background:#222" onclick="tab('adm-logs')">Webhook</button>
+        <h2 style="color:var(--primary)">⚙️ Gestión Total del Portal</h2>
+        
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; justify-content:center;">
+            <button class="btn btn-primary" onclick="tab('tab-add')">Publicar</button>
+            <button class="btn" style="background:#444" onclick="tab('tab-manage')">Gestionar Contenido</button>
+            <button class="btn" style="background:#222" onclick="tab('tab-sys')">Configuración y Webhooks</button>
             <button class="btn" style="background:#ff4444" onclick="logout()">Salir</button>
         </div>
 
-        <div id="adm-content" class="admin-box">
-            <h3>Publicar Post</h3>
+        <div id="tab-add" class="admin-box">
+            <h3>Nueva Publicación</h3>
             <select id="p-type"><option value="norms">Normativa</option><option value="gov">Gobierno</option></select>
-            <input type="text" id="p-cat" placeholder="Categoría (Ej: Normas Civiles)">
-            <input type="text" id="p-sub" placeholder="Etiqueta (Ej: Art. 1)">
+            <input type="text" id="p-cat" placeholder="Sección (Ej: Normas LSPD)">
+            <input type="text" id="p-sub" placeholder="Etiqueta (Ej: Regla 1)">
             <input type="text" id="p-tit" placeholder="Título">
-            <textarea id="p-desc" rows="4" placeholder="Descripción..."></textarea>
-            <button class="btn btn-purple" style="width:100%" onclick="savePost()">Publicar</button>
+            <textarea id="p-desc" rows="4" placeholder="Contenido..."></textarea>
+            <button class="btn btn-primary" style="width:100%" onclick="savePost()">Enviar al Portal</button>
         </div>
 
-        <div id="adm-config" class="admin-box" style="display:none">
-            <h3>Diseño General</h3>
-            <label>Nombre del Servidor:</label>
-            <input type="text" id="cfg-name" placeholder="Nombre">
-            <label>Descripción Inicio:</label>
-            <textarea id="cfg-desc" rows="2"></textarea>
-            <label>URL del Logo (PNG):</label>
-            <input type="text" id="cfg-logo" placeholder="https://...">
-            <label>Color Principal (Hex):</label>
-            <input type="color" id="cfg-color" value="#5865f2">
-            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Guardar Cambios</button>
+        <div id="tab-manage" class="admin-box" style="display:none">
+            <h3>Contenido Publicado</h3>
+            <p style="font-size:12px; opacity:0.6;">Aquí puedes eliminar lo que ya no sirva.</p>
+            <div id="admin-list-items" style="margin-top:15px;"></div>
         </div>
 
-        <div id="adm-logs" class="admin-box" style="display:none">
-            <h3>Webhook Discord</h3>
-            <input type="text" id="cfg-hook" placeholder="URL Webhook">
-            <button class="btn btn-purple" style="width:100%" onclick="saveHook()">Vincular Logs</button>
+        <div id="tab-sys" class="admin-box" style="display:none">
+            <h3>Ajustes de Sistema</h3>
+            <label>Nombre Web:</label><input type="text" id="cfg-name">
+            <label>Descripción Inicio:</label><textarea id="cfg-desc" rows="2"></textarea>
+            <label>URL Logo:</label><input type="text" id="cfg-logo">
+            <label>Color Principal:</label><input type="color" id="cfg-color">
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+            <label>Webhook Discord (Logs):</label><input type="text" id="cfg-hook">
+            <label>Nueva Contraseña Admin:</label><input type="password" id="cfg-pass" placeholder="Dejar vacío para no cambiar">
+            <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveSystem()">Guardar Cambios</button>
         </div>
     </section>
 
     <div id="login-scr" class="overlay">
         <div class="admin-box" style="max-width:320px; text-align:center;">
-            <h2>Staff</h2>
+            <h2>Staff Login</h2>
             <input type="password" id="log-p" placeholder="Contraseña">
-            <button class="btn btn-purple" style="width:100%" onclick="login()">Entrar</button>
+            <button class="btn btn-primary" style="width:100%" onclick="login()">Entrar</button>
+            <button class="btn" style="background:none; margin-top:10px;" onclick="document.getElementById('login-scr').style.display='none'">Cerrar</button>
         </div>
     </div>
 
@@ -123,81 +113,102 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let appData = { posts: {}, config: {name: "España District", desc: "Cargando...", color: "#5865f2", logo: "", hook: "", pass: "pampiano17"} };
-        let logged = sessionStorage.getItem('staff') === 'true';
+        let appData = { posts: {}, config: {name: "España District", desc: "Bienvenido", color: "#5865f2", logo: "", hook: "", pass: "Pampigod"} };
+        let isAuth = sessionStorage.getItem('auth') === 'true';
 
         db.ref('/').on('value', snap => {
             if(snap.val()) {
                 appData = snap.val();
-                applyDesign();
-                render();
+                if(!appData.config.pass) appData.config.pass = "Pampigod";
+                applyAll();
             }
         });
 
-        function applyDesign() {
-            const c = appData.config || {};
-            document.getElementById('main-title').innerText = c.name || "Sin Nombre";
-            document.getElementById('hero-title').innerText = c.name || "Sin Nombre";
-            document.getElementById('hero-desc').innerText = c.desc || "";
-            document.getElementById('dynamic-style').innerHTML = `:root { --bg: #0b101b; --primary: ${c.color || '#5865f2'}; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }`;
-            
+        function applyAll() {
+            const c = appData.config;
+            document.getElementById('nav-name').innerText = c.name;
+            document.getElementById('hero-title').innerText = c.name;
+            document.getElementById('hero-desc').innerText = c.desc;
+            document.getElementById('dynamic-style').innerHTML = `:root { --bg: #0b101b; --primary: ${c.color || '#5865f2'}; --card: #161c2d; --text: #f1f5f9; }`;
             if(c.logo) {
-                document.getElementById('main-logo').src = c.logo; document.getElementById('main-logo').style.display = 'block';
+                document.getElementById('nav-logo').src = c.logo; document.getElementById('nav-logo').style.display = 'block';
                 document.getElementById('hero-logo').src = c.logo; document.getElementById('hero-logo').style.display = 'block';
+            }
+            
+            // Llenar inputs de config
+            document.getElementById('cfg-name').value = c.name;
+            document.getElementById('cfg-desc').value = c.desc;
+            document.getElementById('cfg-logo').value = c.logo;
+            document.getElementById('cfg-color').value = c.color;
+            document.getElementById('cfg-hook').value = c.hook;
+
+            renderPublic();
+            renderAdminList();
+        }
+
+        function renderPublic() {
+            const vNorms = document.getElementById('render-norms'), vGov = document.getElementById('render-gov');
+            vNorms.innerHTML = ""; vGov.innerHTML = "";
+            const groups = {};
+            const posts = appData.posts || {};
+
+            for(let id in posts) {
+                const p = posts[id];
+                if(!groups[p.cat]) groups[p.cat] = { type: p.type, items: [] };
+                groups[p.cat].items.push(p);
+            }
+
+            for(let catName in groups) {
+                let itemsHtml = "";
+                groups[catName].items.forEach(i => {
+                    itemsHtml += `<div class="norm-item"><span style="font-size:10px; background:var(--primary); padding:2px 6px; border-radius:4px; font-weight:800;">${i.sub}</span><h3>${i.title}</h3><p style="white-space:pre-line; opacity:0.8;">${i.desc}</p></div>`;
+                });
+                const acc = `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${catName} <span>▼</span></div><div class="acc-content">${itemsHtml}</div></div>`;
+                if(groups[catName].type === 'norms') vNorms.innerHTML += acc; else vGov.innerHTML += acc;
             }
         }
 
-        function saveDesign() {
-            db.ref('config').update({
-                name: document.getElementById('cfg-name').value,
-                desc: document.getElementById('cfg-desc').value,
-                logo: document.getElementById('cfg-logo').value,
-                color: document.getElementById('cfg-color').value
-            });
-            alert("Diseño actualizado");
+        function renderAdminList() {
+            const list = document.getElementById('admin-list-items');
+            list.innerHTML = "";
+            const posts = appData.posts || {};
+            for(let id in posts) {
+                list.innerHTML += `<div class="list-edit"><span>[${posts[id].type.toUpperCase()}] ${posts[id].title}</span><button onclick="deleteP('${id}')" style="background:red; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">Borrar</button></div>`;
+            }
+        }
+
+        function login() {
+            if(document.getElementById('log-p').value === (appData.config.pass || "Pampigod")) {
+                isAuth = true; sessionStorage.setItem('auth', 'true');
+                document.getElementById('login-scr').style.display='none'; goTo('admin');
+            } else alert("Error");
         }
 
         function savePost() {
             const type = document.getElementById('p-type').value, cat = document.getElementById('p-cat').value, tit = document.getElementById('p-tit').value, desc = document.getElementById('p-desc').value, sub = document.getElementById('p-sub').value;
             if(cat && tit && desc) {
                 db.ref('posts').push({ type, cat, title: tit, desc, sub: sub || "INFO" });
-                sendWebhook(`📝 Publicación`, `Se ha publicado **${tit}** en la sección **${cat}**`);
-                alert("Publicado");
+                sendWebhook(`📝 Nueva Entrada`, `Se ha publicado: **${tit}** en **${cat}**`);
+                alert("¡Publicado!");
+                document.getElementById('p-tit').value = ""; document.getElementById('p-desc').value = "";
             }
         }
 
-        function render() {
-            const views = { norms: document.getElementById('render-norms'), gov: document.getElementById('render-gov') };
-            views.norms.innerHTML = ""; views.gov.innerHTML = "";
-            const groups = {};
-            const posts = appData.posts || {};
-            for(let id in posts) {
-                const p = posts[id];
-                if(!groups[p.cat]) groups[p.cat] = { type: p.type, items: [] };
-                groups[p.cat].items.push({...p, id});
-            }
-            for(let cat in groups) {
-                let items = "";
-                groups[cat].items.forEach(i => {
-                    items += `<div class="norm-item"><span style="font-size:10px; background:var(--primary); padding:2px 5px; border-radius:4px;">${i.sub}</span><h3>${i.title}</h3><p>${i.desc}</p>${logged ? `<button onclick="deleteP('${i.id}')" style="color:red; background:none; border:none; cursor:pointer;">[X]</button>` : ''}</div>`;
-                });
-                const html = `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cat} <span>▼</span></div><div class="acc-content">${items}</div></div>`;
-                views[groups[cat].type].innerHTML += html;
-            }
+        function saveSystem() {
+            const updates = { name: document.getElementById('cfg-name').value, desc: document.getElementById('cfg-desc').value, logo: document.getElementById('cfg-logo').value, color: document.getElementById('cfg-color').value, hook: document.getElementById('cfg-hook').value };
+            const newPass = document.getElementById('cfg-pass').value;
+            if(newPass) updates.pass = newPass;
+            db.ref('config').update(updates);
+            alert("Sistema Actualizado");
         }
 
-        function deleteP(id) { if(confirm("¿Borrar?")) db.ref(`posts/${id}`).remove(); }
-        function saveHook() { db.ref('config').update({ hook: document.getElementById('cfg-hook').value }); alert("Webhook listo"); }
-        function login() { if(document.getElementById('log-p').value === (appData.config.pass || "pampiano17")) { logged=true; sessionStorage.setItem('staff','true'); goTo('admin'); document.getElementById('login-scr').style.display='none'; } else alert("Error"); }
+        function deleteP(id) { if(confirm("¿Borrar definitivamente?")) { db.ref(`posts/${id}`).remove(); sendWebhook("🗑️ Contenido Eliminado", "Se ha borrado una entrada del portal."); } }
+        function sendWebhook(t, m) { if(appData.config.hook) fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ embeds: [{ title: t, description: m, color: 5814783, timestamp: new Date() }] })}); }
+        function checkAuth() { if(isAuth) goTo('admin'); else document.getElementById('login-scr').style.display='flex'; }
         function logout() { sessionStorage.clear(); location.reload(); }
-        async function sendWebhook(t, m) {
-            if(!appData.config.hook) return;
-            fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ embeds: [{ title: t, description: m, color: 5814783 }] })});
-        }
-        function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
-        function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); }
-        function tab(id) { ['adm-content','adm-config','adm-logs'].forEach(t => document.getElementById(t).style.display='none'); document.getElementById(id).style.display='block'; }
-        function openLogin() { if(logged) goTo('admin'); else document.getElementById('login-scr').style.display='flex'; toggleSide(); }
+        function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); }
+        function tab(id) { ['tab-add','tab-manage','tab-sys'].forEach(t => document.getElementById(t).style.display='none'); document.getElementById(id).style.display='block'; }
     </script>
 </body>
 </html>
+
