@@ -3,106 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>España District | Portal</title>
+    <title>España District | Portal Oficial</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style id="dynamic-style">
-        :root { --bg: #0b101b; --primary: #5865f2; --card: #161c2d; --text: #f1f5f9; }
-    </style>
     <style>
+        :root { --bg: #0b101b; --primary: #5865f2; --norms: #a855f7; --gov: #f59e0b; --card: #161c2d; --text: #f1f5f9; }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; position: fixed; top: 0; width: 100%; box-sizing: border-box; background: rgba(11, 16, 27, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-img { height: 35px; border-radius: 50%; margin-right: 10px; }
-        .view { display: none; flex-direction: column; align-items: center; padding: 120px 20px 40px; min-height: 100vh; box-sizing: border-box; }
+        .sidebar { position: fixed; top: 0; right: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s; padding: 60px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        .sidebar.open { right: 0; }
+        .sidebar-link { display: block; padding: 15px; color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+
+        /* VISTAS */
+        .view { display: none; flex-direction: column; align-items: center; padding: 100px 20px 40px; min-height: 100vh; box-sizing: border-box; }
         .view.active { display: flex; animation: fadeIn 0.3s ease; }
+
+        /* DISEÑO DE NORMAS */
+        .norm-item { 
+            margin: 10px; padding: 15px; background: rgba(255,255,255,0.03); 
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); 
+            display: inline-block; width: 100%; box-sizing: border-box;
+            vertical-align: top;
+        }
+        .norm-item h3 { margin: 0 0 8px 0; font-size: 16px; color: var(--primary); }
+        .norm-item p { margin: 0; font-size: 14px; opacity: 0.8; white-space: pre-line; line-height: 1.4; }
+        .norm-item img { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 300px; object-fit: cover; }
+
+        /* ACORDEONES */
         .accordion { width: 100%; max-width: 800px; margin-bottom: 10px; background: var(--card); border-radius: 15px; overflow: hidden; }
-        .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; padding: 0 15px; }
-        .accordion.open .acc-content { max-height: 5000px; padding: 15px; }
-        .norm-item { margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .admin-box { width: 100%; max-width: 700px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; box-sizing: border-box; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; }
-        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; }
-        .btn-primary { background: var(--primary); }
-        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; }
-        .list-edit { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .acc-header { padding: 18px; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); border-left: 4px solid var(--primary); }
+        .acc-content { max-height: 0; overflow: hidden; transition: 0.4s ease; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 5px; }
+        .accordion.open .acc-content { max-height: 10000px; padding: 10px; }
+
+        /* ADMIN */
+        .admin-box { width: 100%; max-width: 650px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; background: #0b101b; border: 1px solid #334155; color: white; box-sizing: border-box; font-family: inherit; }
+        .btn { border: none; border-radius: 10px; color: white; padding: 12px 20px; font-weight: 700; cursor: pointer; margin: 5px; }
+        .btn-purple { background: linear-gradient(to right, #7c3aed, #2563eb); }
+        
+        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div style="display:flex; align-items:center; font-weight:900;">
-            <img id="nav-logo" src="" class="logo-img" style="display:none">
-            <span id="nav-name">ESPAÑA DISTRICT</span>
-        </div>
-        <nav style="display:flex; gap:10px;">
-            <button class="btn" style="background:none;" onclick="goTo('home')">Inicio</button>
-            <button class="btn" style="background:none;" onclick="goTo('norms')">Normas</button>
-            <button class="btn" style="background:none;" onclick="goTo('gov')">Gobierno</button>
-            <button class="btn btn-primary" onclick="checkAuth()">ADMIN</button>
-        </nav>
+        <div id="cfg-nav-title" style="font-weight: 900;">ESPAÑA DISTRICT</div>
+        <div style="cursor:pointer; font-size: 24px;" onclick="toggleSide()">☰</div>
     </header>
 
+    <div id="sidebar" class="sidebar">
+        <span style="float:right; cursor:pointer; font-size: 30px;" onclick="toggleSide()">×</span>
+        <div class="sidebar-link" onclick="goTo('home')">🏠 Inicio</div>
+        <div class="sidebar-link" onclick="goTo('norms')">📜 Normativas</div>
+        <div class="sidebar-link" onclick="goTo('gov')">🏛️ Gobierno</div>
+        <div class="sidebar-link" onclick="openLogin()" style="color:var(--gov); border-top:1px solid #333; margin-top:20px;">⚙️ ADMIN PANEL</div>
+    </div>
+
     <section id="view-home" class="view active">
-        <img id="hero-logo" src="" style="width:120px; margin-bottom:20px; display:none">
-        <h1 id="hero-title" style="font-size:2.5rem;">Cargando...</h1>
-        <p id="hero-desc" style="opacity:0.7;"></p>
+        <img id="display-logo" src="" style="width:100px; height:100px; border-radius:20px; margin-bottom:15px; display:none;">
+        <h1 id="display-title">Cargando...</h1>
+        <p id="display-desc"></p>
+        <input type="text" style="width:90%; max-width:400px; padding:12px; border-radius:10px; background:var(--card); border:1px solid var(--primary); color:white; margin:20px 0;" placeholder="Buscar norma o artículo..." onkeyup="globalSearch(this.value)">
+        <div>
+            <button class="btn btn-purple" onclick="goTo('norms')">Normativas</button>
+            <button class="btn btn-purple" style="background:var(--gov)" onclick="goTo('gov')">Gobierno</button>
+        </div>
     </section>
 
-    <section id="view-norms" class="view"><h2>📜 Normativas</h2><div id="render-norms" style="width:100%; max-width:800px;"></div></section>
-    <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%; max-width:800px;"></div></section>
+    <section id="view-norms" class="view"><h2>📜 Normativas</h2><div id="render-norms" style="width:100%;"></div></section>
+    <section id="view-gov" class="view"><h2>🏛️ Gobierno</h2><div id="render-gov" style="width:100%;"></div></section>
 
     <section id="view-admin" class="view">
-        <h2 style="color:var(--primary)">⚙️ Gestión Total del Portal</h2>
+        <div id="staff-info-bar" style="background:var(--primary); padding:8px 20px; border-radius:30px; font-size:12px; font-weight:800; margin-bottom:20px;"></div>
         
-        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; width:100%; justify-content:center;">
-            <button class="btn btn-primary" onclick="tab('tab-add')">Publicar</button>
-            <button class="btn" style="background:#444" onclick="tab('tab-manage')">Gestionar Contenido</button>
-            <button class="btn" style="background:#222" onclick="tab('tab-sys')">Configuración y Webhooks</button>
-            <button class="btn" style="background:#ff4444" onclick="logout()">Salir</button>
+        <div style="display:flex; gap:5px; margin-bottom:20px; overflow-x:auto; width:100%; max-width:700px;">
+            <button class="btn btn-purple" onclick="tab('t-norms')">Edit Normas</button>
+            <button class="btn btn-purple" style="background:var(--gov)" onclick="tab('t-gov')">Edit Gobierno</button>
+            <button class="btn btn-purple" style="background:#444" onclick="tab('t-design')">Diseño</button>
+            <button class="btn btn-purple" style="background:#222" onclick="protectedTab('t-hooks')">Webhook 🔒</button>
+            <button class="btn btn-purple" style="background:#222" onclick="protectedTab('t-pass')">Clave 🔒</button>
+            <button class="btn" style="background:red" onclick="location.reload()">Salir</button>
         </div>
 
-        <div id="tab-add" class="admin-box">
-            <h3>Nueva Publicación</h3>
-            <select id="p-type"><option value="norms">Normativa</option><option value="gov">Gobierno</option></select>
-            <input type="text" id="p-cat" placeholder="Sección (Ej: Normas LSPD)">
-            <input type="text" id="p-sub" placeholder="Etiqueta (Ej: Regla 1)">
-            <input type="text" id="p-tit" placeholder="Título">
-            <textarea id="p-desc" rows="4" placeholder="Contenido..."></textarea>
-            <button class="btn btn-primary" style="width:100%" onclick="savePost()">Enviar al Portal</button>
+        <div id="t-norms" class="admin-box">
+            <h3>Secciones de Normativa</h3>
+            <input type="text" id="cat-n-name" placeholder="Ej: Código Penal">
+            <button class="btn btn-purple" style="width:100%" onclick="addCat('norms')">Crear Sección</button>
+            <hr style="opacity:0.1; margin:20px 0">
+            <h3>Publicar/Editar Norma</h3>
+            <select id="dest-norms"></select>
+            <input type="text" id="item-t-norms" placeholder="Título">
+            <textarea id="item-d-norms" rows="3" placeholder="Descripción..."></textarea>
+            <input type="text" id="item-img-norms" placeholder="URL Imagen (Opcional)">
+            <button class="btn btn-purple" style="width:100%" onclick="addItem('norms')">Guardar Norma</button>
+            <div id="manage-norms" style="margin-top:20px"></div>
         </div>
 
-        <div id="tab-manage" class="admin-box" style="display:none">
-            <h3>Contenido Publicado</h3>
-            <p style="font-size:12px; opacity:0.6;">Aquí puedes eliminar lo que ya no sirva.</p>
-            <div id="admin-list-items" style="margin-top:15px;"></div>
+        <div id="t-gov" class="admin-box" style="display:none">
+            <h3>Secciones de Gobierno</h3>
+            <input type="text" id="cat-g-name" placeholder="Ej: LSPD">
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addCat('gov')">Crear Sección</button>
+            <hr style="opacity:0.1; margin:20px 0">
+            <h3>Publicar/Editar Ítem</h3>
+            <select id="dest-gov"></select>
+            <input type="text" id="item-t-gov" placeholder="Título">
+            <textarea id="item-d-gov" rows="3" placeholder="Descripción..."></textarea>
+            <input type="text" id="item-img-gov" placeholder="URL Imagen (Opcional)">
+            <button class="btn btn-purple" style="background:var(--gov); width:100%" onclick="addItem('gov')">Guardar en Gobierno</button>
+            <div id="manage-gov" style="margin-top:20px"></div>
         </div>
 
-        <div id="tab-sys" class="admin-box" style="display:none">
-            <h3>Ajustes de Sistema</h3>
-            <label>Nombre Web:</label><input type="text" id="cfg-name">
-            <label>Descripción Inicio:</label><textarea id="cfg-desc" rows="2"></textarea>
-            <label>URL Logo:</label><input type="text" id="cfg-logo">
-            <label>Color Principal:</label><input type="color" id="cfg-color">
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <label>Webhook Discord (Logs):</label><input type="text" id="cfg-hook">
-            <label>Nueva Contraseña Admin:</label><input type="password" id="cfg-pass" placeholder="Dejar vacío para no cambiar">
-            <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveSystem()">Guardar Cambios</button>
+        <div id="t-design" class="admin-box" style="display:none">
+            <h3>Diseño General</h3>
+            <label>Título Portal:</label><input type="text" id="cfg-t">
+            <label>Descripción Inicio:</label><input type="text" id="cfg-d">
+            <label>URL Logo:</label><input type="text" id="cfg-l">
+            <button class="btn btn-purple" style="width:100%" onclick="saveDesign()">Actualizar Portal</button>
+        </div>
+
+        <div id="t-hooks" class="admin-box" style="display:none">
+            <h3>Webhook Discord</h3>
+            <input type="text" id="cfg-h" placeholder="URL Webhook">
+            <button class="btn btn-purple" style="width:100%" onclick="saveHook()">Vincular Logs</button>
+        </div>
+
+        <div id="t-pass" class="admin-box" style="display:none">
+            <h3>Seguridad</h3>
+            <label>Nueva Clave Maestra:</label><input type="password" id="cfg-p">
+            <button class="btn btn-purple" style="width:100%" onclick="savePass()">Cambiar Contraseña</button>
         </div>
     </section>
 
-    <div id="login-scr" class="overlay">
+    <div id="login" class="overlay">
         <div class="admin-box" style="max-width:320px; text-align:center;">
-            <h2>Staff Login</h2>
-            <input type="password" id="log-p" placeholder="Contraseña">
-            <button class="btn btn-primary" style="width:100%" onclick="login()">Entrar</button>
-            <button class="btn" style="background:none; margin-top:10px;" onclick="document.getElementById('login-scr').style.display='none'">Cerrar</button>
+            <h2 style="margin-bottom:5px">Acceso Staff</h2>
+            <input type="text" id="st-name" placeholder="Tu Nombre">
+            <input type="text" id="st-range" placeholder="Tu Rango">
+            <input type="password" id="st-pass" placeholder="Contraseña Maestra">
+            <button class="btn btn-purple" style="width:100%; margin-top:10px;" onclick="checkLogin()">Entrar</button>
+            <p onclick="closeLogin()" style="cursor:pointer; opacity:0.5; margin-top:10px;">Volver</p>
+        </div>
+    </div>
+
+    <div id="second-login" class="overlay">
+        <div class="admin-box" style="max-width:300px; text-align:center;">
+            <h3>Verificación</h3>
+            <input type="password" id="pass-2" placeholder="Contraseña">
+            <button class="btn btn-purple" style="width:100%" onclick="verifyProtected()">Entrar</button>
         </div>
     </div>
 
     <script>
+        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyALZQFctcGybVPRnIVtGzMqZ0lFBUkZqC4",
             authDomain: "wheeboks-2896f.firebaseapp.com",
@@ -111,103 +167,153 @@
             appId: "1:484871203880:web:5d611c8fae4deec19dd91d"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const fb = firebase.database();
 
-        let appData = { posts: {}, config: {name: "España District", desc: "Bienvenido", color: "#5865f2", logo: "", hook: "", pass: "Pampigod"} };
-        let isAuth = sessionStorage.getItem('auth') === 'true';
+        let appData = { config: {}, norms: [], gov: [] };
+        let staffActive = { name: "", range: "" };
+        let pendingTab = "";
 
-        db.ref('/').on('value', snap => {
-            if(snap.val()) {
-                appData = snap.val();
-                if(!appData.config.pass) appData.config.pass = "Pampigod";
-                applyAll();
+        // ESCUCHA REALTIME
+        fb.ref('/').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                appData = data;
+                if (!appData.norms) appData.norms = [];
+                if (!appData.gov) appData.gov = [];
+                render();
             }
         });
 
-        function applyAll() {
-            const c = appData.config;
-            document.getElementById('nav-name').innerText = c.name;
-            document.getElementById('hero-title').innerText = c.name;
-            document.getElementById('hero-desc').innerText = c.desc;
-            document.getElementById('dynamic-style').innerHTML = `:root { --bg: #0b101b; --primary: ${c.color || '#5865f2'}; --card: #161c2d; --text: #f1f5f9; }`;
-            if(c.logo) {
-                document.getElementById('nav-logo').src = c.logo; document.getElementById('nav-logo').style.display = 'block';
-                document.getElementById('hero-logo').src = c.logo; document.getElementById('hero-logo').style.display = 'block';
-            }
+        async function sendLog(title, desc) {
+            if(!appData.config.hook) return;
+            fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+                embeds: [{ title, description: desc, color: 5814783, fields: [{name: "Staff", value: staffActive.name, inline: true}, {name: "Rango", value: staffActive.range, inline: true}], timestamp: new Date() }]
+            })});
+        }
+
+        function toggleSide() { document.getElementById('sidebar').classList.toggle('open'); }
+        function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-' + id).classList.add('active'); if(document.getElementById('sidebar').classList.contains('open')) toggleSide(); }
+        function tab(id) { document.querySelectorAll('.admin-box').forEach(b => { if(b.id && b.id.startsWith('t-')) b.style.display='none'; }); document.getElementById(id).style.display='block'; }
+
+        function openLogin() { toggleSide(); document.getElementById('login').style.display='flex'; }
+        function closeLogin() { document.getElementById('login').style.display='none'; }
+
+        function checkLogin() {
+            const n = document.getElementById('st-name').value, r = document.getElementById('st-range').value, p = document.getElementById('st-pass').value;
+            if(p === (appData.config.pass || "pampiano17") && n && r) {
+                staffActive = { name: n, range: r };
+                document.getElementById('staff-info-bar').innerText = `OPERANDO: ${n.toUpperCase()} [${r.toUpperCase()}]`;
+                closeLogin(); goTo('admin');
+                sendLog("🔑 Acceso al Panel", "El staff ha iniciado sesión.");
+            } else { alert("Clave errónea o datos incompletos"); }
+        }
+
+        function protectedTab(id) { pendingTab = id; document.getElementById('second-login').style.display='flex'; }
+        function verifyProtected() {
+            if(document.getElementById('pass-2').value === (appData.config.pass || "pampiano17")) { 
+                document.getElementById('second-login').style.display='none'; tab(pendingTab); 
+            } else { alert("Error"); }
+        }
+
+        function addCat(type) {
+            const val = document.getElementById(`cat-${type === 'norms' ? 'n' : 'g'}-name`).value;
+            if(!val) return;
+            const list = appData[type] || [];
+            list.push({ name: val, items: [] });
+            fb.ref(type).set(list);
+            sendLog("📁 Nueva Sección", `Se creó la sección **${val}** en ${type}`);
+            document.getElementById(`cat-${type === 'norms' ? 'n' : 'g'}-name`).value = "";
+        }
+
+        function addItem(type) {
+            const idx = document.getElementById(`dest-${type}`).value;
+            const t = document.getElementById(`item-t-${type}`).value;
+            const d = document.getElementById(`item-d-${type}`).value;
+            const img = document.getElementById(`item-img-${type}`).value;
+            if(!t || !d) return;
+
+            if(!appData[type][idx].items) appData[type][idx].items = [];
+            appData[type][idx].items.push({ title: t, desc: d, img });
+            fb.ref(`${type}/${idx}/items`).set(appData[type][idx].items);
             
-            // Llenar inputs de config
-            document.getElementById('cfg-name').value = c.name;
-            document.getElementById('cfg-desc').value = c.desc;
-            document.getElementById('cfg-logo').value = c.logo;
-            document.getElementById('cfg-color').value = c.color;
-            document.getElementById('cfg-hook').value = c.hook;
-
-            renderPublic();
-            renderAdminList();
+            sendLog("📝 Nueva Entrada", `Publicado: **${t}** en la sección **${appData[type][idx].name}**`);
+            document.getElementById(`item-t-${type}`).value = ""; 
+            document.getElementById(`item-d-${type}`).value = "";
+            document.getElementById(`item-img-${type}`).value = "";
         }
 
-        function renderPublic() {
-            const vNorms = document.getElementById('render-norms'), vGov = document.getElementById('render-gov');
-            vNorms.innerHTML = ""; vGov.innerHTML = "";
-            const groups = {};
-            const posts = appData.posts || {};
+        function delI(type, ci, ii) {
+            if(confirm("¿Borrar ítem?")) {
+                appData[type][ci].items.splice(ii, 1);
+                fb.ref(`${type}/${ci}/items`).set(appData[type][ci].items);
+            }
+        }
 
-            for(let id in posts) {
-                const p = posts[id];
-                if(!groups[p.cat]) groups[p.cat] = { type: p.type, items: [] };
-                groups[p.cat].items.push(p);
+        function delC(type, ci) {
+            if(confirm("¿Borrar toda la sección?")) {
+                appData[type].splice(ci, 1);
+                fb.ref(type).set(appData[type]);
+            }
+        }
+
+        function saveDesign() {
+            const up = {
+                title: document.getElementById('cfg-t').value,
+                desc: document.getElementById('cfg-d').value,
+                logo: document.getElementById('cfg-l').value
+            };
+            fb.ref('config').update(up);
+            alert("Diseño actualizado");
+        }
+
+        function saveHook() { fb.ref('config/hook').set(document.getElementById('cfg-h').value); alert("Webhook guardado"); }
+        function savePass() { fb.ref('config/pass').set(document.getElementById('cfg-p').value); alert("Clave cambiada"); }
+
+        function render() {
+            const cfg = appData.config || {};
+            document.getElementById('display-title').innerText = cfg.title || "España District";
+            document.getElementById('display-desc').innerText = cfg.desc || "Portal oficial";
+            document.getElementById('cfg-nav-title').innerText = cfg.title || "ESPAÑA DISTRICT";
+            if(cfg.logo) {
+                document.getElementById('display-logo').src = cfg.logo;
+                document.getElementById('display-logo').style.display = 'block';
             }
 
-            for(let catName in groups) {
-                let itemsHtml = "";
-                groups[catName].items.forEach(i => {
-                    itemsHtml += `<div class="norm-item"><span style="font-size:10px; background:var(--primary); padding:2px 6px; border-radius:4px; font-weight:800;">${i.sub}</span><h3>${i.title}</h3><p style="white-space:pre-line; opacity:0.8;">${i.desc}</p></div>`;
+            ['norms', 'gov'].forEach(type => {
+                const renderCont = document.getElementById('render-' + type);
+                const destSelect = document.getElementById('dest-' + type);
+                const manageCont = document.getElementById('manage-' + type);
+                renderCont.innerHTML = ""; destSelect.innerHTML = ""; manageCont.innerHTML = "";
+
+                (appData[type] || []).forEach((cat, ci) => {
+                    destSelect.innerHTML += `<option value="${ci}">${cat.name}</option>`;
+                    let itemsHtml = (cat.items || []).map((it, ii) => `
+                        <div class="norm-item">
+                            <h3>${it.title}</h3><p>${it.desc}</p>
+                            ${it.img ? `<img src="${it.img}">` : ''}
+                        </div>`).join('');
+
+                    renderCont.innerHTML += `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${cat.name} <span>▼</span></div><div class="acc-content">${itemsHtml}</div></div>`;
+                    
+                    manageCont.innerHTML += `<div style="background:#0b101b; padding:10px; margin-top:10px; border-radius:10px; font-size:13px;">
+                        <b>${cat.name}</b> <span onclick="delC('${type}',${ci})" style="float:right; color:red; cursor:pointer">Eliminar Sección</span>
+                        ${(cat.items || []).map((it, ii) => `<div style="margin-top:5px; opacity:0.6">${it.title} 
+                            <span onclick="delI('${type}',${ci},${ii})" style="color:red; cursor:pointer; margin-left:10px">X</span>
+                        </div>`).join('')}
+                    </div>`;
                 });
-                const acc = `<div class="accordion"><div class="acc-header" onclick="this.parentElement.classList.toggle('open')">${catName} <span>▼</span></div><div class="acc-content">${itemsHtml}</div></div>`;
-                if(groups[catName].type === 'norms') vNorms.innerHTML += acc; else vGov.innerHTML += acc;
-            }
+            });
         }
 
-        function renderAdminList() {
-            const list = document.getElementById('admin-list-items');
-            list.innerHTML = "";
-            const posts = appData.posts || {};
-            for(let id in posts) {
-                list.innerHTML += `<div class="list-edit"><span>[${posts[id].type.toUpperCase()}] ${posts[id].title}</span><button onclick="deleteP('${id}')" style="background:red; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">Borrar</button></div>`;
-            }
+        function globalSearch(q) {
+            if(q.length < 2) { render(); return; }
+            goTo('norms');
+            document.querySelectorAll('.accordion').forEach(acc => {
+                const has = acc.innerText.toLowerCase().includes(q.toLowerCase());
+                acc.style.display = has ? 'block' : 'none';
+                if(has) acc.classList.add('open');
+            });
         }
-
-        function login() {
-            if(document.getElementById('log-p').value === (appData.config.pass || "Pampigod")) {
-                isAuth = true; sessionStorage.setItem('auth', 'true');
-                document.getElementById('login-scr').style.display='none'; goTo('admin');
-            } else alert("Error");
-        }
-
-        function savePost() {
-            const type = document.getElementById('p-type').value, cat = document.getElementById('p-cat').value, tit = document.getElementById('p-tit').value, desc = document.getElementById('p-desc').value, sub = document.getElementById('p-sub').value;
-            if(cat && tit && desc) {
-                db.ref('posts').push({ type, cat, title: tit, desc, sub: sub || "INFO" });
-                sendWebhook(`📝 Nueva Entrada`, `Se ha publicado: **${tit}** en **${cat}**`);
-                alert("¡Publicado!");
-                document.getElementById('p-tit').value = ""; document.getElementById('p-desc').value = "";
-            }
-        }
-
-        function saveSystem() {
-            const updates = { name: document.getElementById('cfg-name').value, desc: document.getElementById('cfg-desc').value, logo: document.getElementById('cfg-logo').value, color: document.getElementById('cfg-color').value, hook: document.getElementById('cfg-hook').value };
-            const newPass = document.getElementById('cfg-pass').value;
-            if(newPass) updates.pass = newPass;
-            db.ref('config').update(updates);
-            alert("Sistema Actualizado");
-        }
-
-        function deleteP(id) { if(confirm("¿Borrar definitivamente?")) { db.ref(`posts/${id}`).remove(); sendWebhook("🗑️ Contenido Eliminado", "Se ha borrado una entrada del portal."); } }
-        function sendWebhook(t, m) { if(appData.config.hook) fetch(appData.config.hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ embeds: [{ title: t, description: m, color: 5814783, timestamp: new Date() }] })}); }
-        function checkAuth() { if(isAuth) goTo('admin'); else document.getElementById('login-scr').style.display='flex'; }
-        function logout() { sessionStorage.clear(); location.reload(); }
-        function goTo(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); }
-        function tab(id) { ['tab-add','tab-manage','tab-sys'].forEach(t => document.getElementById(t).style.display='none'); document.getElementById(id).style.display='block'; }
     </script>
 </body>
 </html>
